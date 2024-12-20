@@ -3,13 +3,16 @@ import sys
 from scripts.utils import load_image,load_images
 from scripts.tilemap import Tilemap
 
-RENDER_SCALE = 3.2
+RENDER_SCALE = 3.25
 class Game:
     """
     Acesta clasa este pentru editor ce are urmatoarele functionalitati
     - click stanga pune un block pe pozitia cursorului
     - click dreapta sterge un block de pe pozitia cursorului
     - lShift potisa schimbi varianta tileului
+    - din WASD miscam camera
+    - o pentru a salva harta
+    - t pentru a face autotile(adica poti folosi doar un tip de tile si apasand t o sa arate harta 'mai bine')
     """
     def __init__(self):
         #metoda privata
@@ -41,15 +44,26 @@ class Game:
         self.tile_list = list(self.assets)
         self.tile_group = 0 #indexul tileului din lista
         self.tile_variant = 0
+
+        try:
+            self.tilemap.load('map.json')
+        except FileNotFoundError:
+            pass
+
+
         self.clicking = False
         self.right_clicking = False
         self.shift = False
+        self.ongrid = True
+
     def run(self):
         #metoda publica
         while True:
             self.display.fill((0,0,0)) #destination.blit(source, position)
-
-            render_scroll = (int(self.scroll[0]), int(self.scroll[1] ))
+            
+            self.scroll[0] += (self.movement[1] - self.movement[0]) * 2 #miscarea camerei pe axa x
+            self.scroll[1] += (self.movement[3] - self.movement[2]) * 2 #miscarea camerei pe axa y
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
             self.tilemap.render(self.display, offset = render_scroll) #pentru a randa/desena tilemapul(ce preprezinta harta)
             curr_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
@@ -60,13 +74,28 @@ class Game:
             mpos = (mpos[0] / RENDER_SCALE, mpos[1] / RENDER_SCALE)
             tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size), int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
             
-            if self.clicking:
-               self.tilemap.tilemap[str(tile_pos[1]) + ',' + str(tile_pos[0])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos } #adaugam tileul in tilemap
+            if self.ongrid:
+                self.display.blit(curr_tile_img, (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1]))
+            else:
+                self.display.blit(curr_tile_img, mpos)
+
+            if self.clicking and self.ongrid:
+                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos} #adaugam un tile in tilemap ce se afpla pe grid
+
+          
             if self.right_clicking:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
-                    del self.tilemap.tilemap[tile_loc] #stergem tileul din tilemap
+                    del self.tilemap.tilemap[tile_loc] #stergem un tile din tilemap
+                for tile in self.tilemap.offgrid_tiles.copy():
+                    tile_img = self.assets[tile['type']][tile['variant']]
+                    tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
+                    if tile_r.collidepoint(mpos):
+                        self.tilemap.offgrid_tiles.remove(tile) #stergem un tile din lista de tileuri ce nu sunt pe grid
+
+
             self.display.blit(curr_tile_img, (5,5))
+            
             for event in pygame.event.get(): # ia inputul oricare ar fi el
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -74,6 +103,8 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:     #click stanga
                         self.clicking = True
+                        if not self.ongrid:
+                            self.tilemap.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': (mpos[0] + self.scroll[0], mpos[1] + self.scroll[1])}) #aduga in lista de elemenete ce nu sunt pe grid
                     if event.button == 3:
                         self.right_clicking = True
                     if self.shift:    
@@ -95,29 +126,36 @@ class Game:
                         self.right_clicking = False
 
                 if event.type == pygame.KEYDOWN: #evenimet generat de apasarea unei taste
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_w:
                         self.movement[2] = True
-                    if event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_s:
                         self.movement[3] = True    
+                    if event.key == pygame.K_t:
+                        self.tilemap.autotile()    
                     if event.key == pygame.K_LSHIFT:
                         if self.shift:
                             self.shift = False
                         else:
                             self.shift = True
-                    
-
+                    if event.key == pygame.K_LCTRL:
+                        if self.ongrid:
+                            self.ongrid = False
+                        else:
+                            self.ongrid = True
+                    if event.key == pygame.K_o:
+                        self.tilemap.save('map.json')
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste
+                    if event.key == pygame.K_a:#evenimet generat de ridicarea unei taste
                         self.movement[0] = False
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = False
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_w:
                         self.movement[2] = False
-                    if event.key == pygame.K_DOWN:
+                    if event.key == pygame.K_s:
                         self.movement[3] = False            
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
 
