@@ -3,8 +3,14 @@ import sys
 from scripts.utils import load_image,load_images
 from scripts.tilemap import Tilemap
 
-
+RENDER_SCALE = 3.2
 class Game:
+    """
+    Acesta clasa este pentru editor ce are urmatoarele functionalitati
+    - click stanga pune un block pe pozitia cursorului
+    - click dreapta sterge un block de pe pozitia cursorului
+    - lShift potisa schimbi varianta tileului
+    """
     def __init__(self):
         #metoda privata
 
@@ -43,15 +49,23 @@ class Game:
         while True:
             self.display.fill((0,0,0)) #destination.blit(source, position)
 
-            render_scroll = (int(self.scroll[0]), int(self.scroll[1] )) #scrollul este impartit la 16 pentru a obtine pozitia tileului
-            
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1] ))
+
             self.tilemap.render(self.display, offset = render_scroll) #pentru a randa/desena tilemapul(ce preprezinta harta)
             curr_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             curr_tile_img.set_alpha(128)
 
 
             mpos = pygame.mouse.get_pos() #coordonatele mouseului
-        
+            mpos = (mpos[0] / RENDER_SCALE, mpos[1] / RENDER_SCALE)
+            tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size), int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
+            
+            if self.clicking:
+               self.tilemap.tilemap[str(tile_pos[1]) + ',' + str(tile_pos[0])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos } #adaugam tileul in tilemap
+            if self.right_clicking:
+                tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
+                if tile_loc in self.tilemap.tilemap:
+                    del self.tilemap.tilemap[tile_loc] #stergem tileul din tilemap
             self.display.blit(curr_tile_img, (5,5))
             for event in pygame.event.get(): # ia inputul oricare ar fi el
                 if event.type == pygame.QUIT:
