@@ -13,9 +13,11 @@ class Tilemap:
         self.tilemap = {} #dictionar in vare salvam pozitia in acest stil "1;10" si ce avem la aceea pozitie e un tile ce are campurile de mai jos 'type','variant', 'pos' 
         self.offgrid_tiles = [] #lista elemente 
 
-        for i in range(13):
-            self.tilemap[str(3 + i) + ';10'] = {'type' : 'grass', 'variant' : 1, 'pos' : (3 + i, 10)} #ne miscampe coloana #variant este indexul imaginii din lista de imagini
-            self.tilemap['10;' + str(i + 5)] = {'type': 'stone', 'variant' : 1, 'pos' : (10, i + 5)} #ne miscam pe linie
+        for i in range(200):
+            self.tilemap[str(3 + i) + ';10'] = {'type' : 'grass', 'variant' : 1, 'pos' : (3 + i, 10)} #ne miscampe linie #variant este indexul imaginii din lista de imagini
+
+        for i in range(13):    
+            self.tilemap['10;' + str(i + 5)] = {'type': 'stone', 'variant' : 1, 'pos' : (10, i + 5)} #ne miscam pe coloana
             for i in range(5):
                 self.tilemap[str(5 + i) + ';' + str(10 - i)] = {'type': 'stone', 'variant': 1, 'pos': (5 + i, 10 - i)} # rampa diagonala
 

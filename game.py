@@ -1,7 +1,7 @@
 import pygame
 import sys
-from scripts.entities import PhysicsEntity
-from scripts.utils import load_image,load_images
+from scripts.entities import PhysicsEntity,Player
+from scripts.utils import load_image,load_images,Animation
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 
@@ -27,12 +27,17 @@ class Game:
             'stone' : load_images('tiles/stone'),
             'large_decor' : load_images('tiles/large_decor'),
             'background' : load_image('background.png'),
-            'clouds' : load_images('clouds')
+            'clouds' : load_images('clouds'),
+            'idle_animation': Animation(load_images('entities/player/idle'), img_dur=7),
+            'run_animation': Animation(load_images('entities/player/run'), img_dur=5),
+            'jump_animation': Animation(load_images('entities/player/jump'))
+
+
             
         } #dictionar key:String, value: path la img
         
 
-        self.player = PhysicsEntity(self, 'player', (50,50), (8, 15))
+        self.player = Player(self, 'player', (50,50), (8, 15))
         
         self.tilemap = Tilemap(self,tile_size = 16)
 
@@ -76,6 +81,6 @@ class Game:
 
             pygame.display.update()
 
-            self.clock.tick(60) #dynamic sleep
+            self.clock.tick(70) #dynamic sleep
 
 Game().run() #instantiem clasa si apelam metoda run
