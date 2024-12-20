@@ -9,8 +9,9 @@ class Game:
     Acesta clasa este pentru editor ce are urmatoarele functionalitati
     - click stanga pune un block pe pozitia cursorului
     - click dreapta sterge un block de pe pozitia cursorului
-    - lShift potisa schimbi varianta tileului
+    - lShift poti sa schimbi varianta tileului
     - din WASD miscam camera
+    - lCtrl pentru a schimba intre grid si offgrid adica poti pune chestii fara sa respecti distanta de 16x16
     - o pentru a salva harta
     - t pentru a face autotile(adica poti folosi doar un tip de tile si apasand t o sa arate harta 'mai bine')
     """
