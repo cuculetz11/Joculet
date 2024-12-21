@@ -29,6 +29,29 @@ class Tilemap:
         self.tilemap = {} #dictionar in vare salvam pozitia in acest stil "1;10" si ce avem la aceea pozitie e un tile ce are campurile de mai jos 'type','variant', 'pos' 
         self.offgrid_tiles = [] #lista elemente ce nu respecta gridul, adica nu sunt pe o placa de tiles le pot pune cum vreau eu(suprapuse sau cum vreau)
 
+    def extract(self, id_pairs, keep=False):
+        matches = []
+        # Use a copy of the keys of the dictionary to avoid modifying while iterating
+        for tile in self.offgrid_tiles.copy():
+            if (tile['type'], tile['variant']) in id_pairs:
+                matches.append(tile.copy())
+                if not keep:
+                    self.offgrid_tiles.remove(tile)
+
+        for loc in list(self.tilemap.keys()):  # Use list() to get a copy of the keys
+            tile = self.tilemap[loc]
+            if (tile['type'], tile['variant']) in id_pairs:
+                matches.append(tile.copy())
+                matches[-1]['pos'] = matches[-1]['pos'].copy()
+                matches[-1]['pos'][0] *= self.tile_size
+                matches[-1]['pos'][1] *= self.tile_size
+                if not keep:
+                    del self.tilemap[loc]
+
+        return matches
+
+
+                
 
     def tiles_around(self, pos):
         """
@@ -52,6 +75,16 @@ class Tilemap:
         self.tilemap = map_data['tilemap']
         self.tile_size = map_data['tile_size']
         self.offgrid_tiles = map_data['offgrid']
+
+    def solid_check(self, pos):
+        """
+        Aceasta functie verifica daca o pozitie este pe un tile solid
+        """
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            if self.tilemap[tile_loc]['type'] in PHYSICS_TILES:
+                return self.tilemap[tile_loc]
+
 
     def save(self, path):
         f = open(path, 'w')

@@ -33,7 +33,7 @@ class Game:
             'grass' : load_images('tiles/grass'),
             'stone' : load_images('tiles/stone'),
             'large_decor' : load_images('tiles/large_decor'),
-
+            'spawners': load_images('tiles/spawners'),
         } #dictionar key:String, value: path la img
           
         self.movement = [False, False, False, False] #move camera up, down, left, right
