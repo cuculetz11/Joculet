@@ -125,9 +125,9 @@ class Enemy(PhysicsEntity):
 
         # setetam animatia in functie de miscare
         if movement[0] != 0:
-            self.set_action('run')
+            self.set_action('enemy/run')
         else:
-            self.set_action('idle')
+            self.set_action('enemy/idle')
 
     def render(self, surf, offset=(0, 0)):
         super().render(surf, offset=offset)
