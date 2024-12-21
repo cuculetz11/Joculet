@@ -26,7 +26,7 @@ class Tilemap:
     def __init__(self, game, tile_size = 16):
         self.game = game
         self.tile_size = tile_size
-        self.tilemap = {} #dictionar in vare salvam pozitia in acest stil "1;10" si ce avem la aceea pozitie e un tile ce are campurile de mai jos 'type','variant', 'pos' 
+        self.tilemap = {} #dictionar in vare salvam pozitia in acest stil "1;10" si ce avem la aceea pozitie e un tile ce are campurile 'type','variant', 'pos' 
         self.offgrid_tiles = [] #lista elemente ce nu respecta gridul, adica nu sunt pe o placa de tiles le pot pune cum vreau eu(suprapuse sau cum vreau)
 
     def extract(self, id_pairs, keep=False):

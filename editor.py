@@ -3,7 +3,8 @@ import sys
 from scripts.utils import load_image,load_images
 from scripts.tilemap import Tilemap
 
-RENDER_SCALE = 3.25
+RENDER_SCALE = 768 / 240
+#3.2 
 class Game:
     """
     Acesta clasa este pentru editor ce are urmatoarele functionalitati
