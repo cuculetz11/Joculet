@@ -9,7 +9,7 @@ def load_image(name):
     img.set_colorkey((0, 0, 0))
     return img
 
-#aici putem face o functie ce incarca automat toate pozele dintr un director pe care le vrem
+#aici putem face o functie ce incarca automat toate pozele dintr-un director pe care le vrem
 def load_images(path):
     images = []
 
