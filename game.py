@@ -30,8 +30,8 @@ class Game:
             'clouds' : load_images('clouds'),
             'idle_animation': Animation(load_images('entities/player/idle'), img_dur=7),
             'run_animation': Animation(load_images('entities/player/run'), img_dur=5),
-            'jump_animation': Animation(load_images('entities/player/jump'))
-
+            'jump_animation': Animation(load_images('entities/player/jump')),
+            'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
 
             
         } #dictionar key:String, value: path la img
@@ -40,7 +40,7 @@ class Game:
         self.player = Player(self, 'player', (50,50), (8, 15))
         
         self.tilemap = Tilemap(self,tile_size = 16)
-
+        self.particles = []
         self.scroll = [0,0]
         self.tilemap.load('map.json')
         self.clouds = Clouds(self.assets['clouds'], count=16)
@@ -59,7 +59,12 @@ class Game:
             self.tilemap.render(self.display, offset = self.scroll) #pentru a randa/desena tilemapul(ce preprezinta harta)
             self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
             self.player.render(self.display, offset = self.scroll) 
-
+            # randam particulele pentru dash 
+            for particle in self.particles.copy():
+                kill = particle.update()
+                particle.render(self.display, offset = self.scroll)
+                if kill:
+                    self.particles.remove(particle)
 
             for event in pygame.event.get(): # ia inputul oricare ar fi el
                 if event.type == pygame.QUIT:
@@ -70,8 +75,10 @@ class Game:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP:
-                        self.player.velocity[1] = -3  # saritura          
+                    if event.key == pygame.K_UP or event.key == pygame.K_SPACE:
+                        self.player.jump() # saritura
+                    if event.key == pygame.K_x:
+                        self.player.dash()              
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste
                         self.movement[0] = False
