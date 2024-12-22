@@ -1,6 +1,7 @@
 
 import random
 import math
+import pygame
 from scripts.entities import PhysicsEntity
 from scripts.particle import Particle
 
@@ -61,8 +62,14 @@ class Player(PhysicsEntity):
         if self.pos[1] > 350:
             self.health = 0
             self.game.load_level(3)
-            self.game.player.health = 3        
-            
+            self.game.player.health = 3
+
+    def check_ramen(self):
+        if self.rect().colliderect(pygame.Rect(int(self.game.ramen[0]) * 16, int(self.game.ramen[1]) * 16, 10, 10)):
+            print("ramen")
+    def check_info(self):
+        if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
+            print("info")              
     def jump(self):
         if self.jumps:
             self.velocity[1] = -3

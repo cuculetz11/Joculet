@@ -47,17 +47,19 @@ class Game:
             'shuriken': load_image("projectile.png"),
 
             'inima': load_image("inima.png"),
+            'ramen': load_image("ramen.png"),
         } #dictionar key:String, value: path la img
         
         self.health_hero = 3
         self.player = Player(self, 'player', (50,50), (8, 15))
         
         self.tilemap = Tilemap(self,tile_size = 16)
-    
+        self.ramen = []
+        self.info = []
         self.load_level(3)
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
-    
+       
 
         #spawnerul 0 e playerul, iar spawnerul 1 e inamicul(asa le punem in editor)
      
@@ -77,6 +79,11 @@ class Game:
         self.projectiles = []
         self.particles = []
         self.scroll = [0, 0]
+        for tile in self.tilemap.tilemap.values():
+            if tile['type'] == 'decor' and tile['variant'] == 5:
+                self.ramen = tile['pos']
+            if tile['type'] == 'decor' and tile['variant'] == 4:
+                self.info = tile['pos']
 
     def run(self):
         #metoda publica
@@ -91,6 +98,8 @@ class Game:
             
             self.tilemap.render(self.display, offset=self.scroll)
             self.player.check_fall()
+            self.player.check_ramen()
+            self.player.check_info()
             # randam enemies
             for enemy in self.enemies.copy():
                 enemy.update(self.tilemap, (0, 0))
