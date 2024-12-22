@@ -48,6 +48,7 @@ class Game:
 
             'inima': load_image("inima.png"),
             'ramen': load_image("ramen.png"),
+            'rassengan': load_image("projectile_hero.png"),
         } #dictionar key:String, value: path la img
         
         self.health_hero = 3
@@ -61,9 +62,8 @@ class Game:
         self.load_level(self.level)
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
-        #spawnerul 0 e playerul, iar spawnerul 1 e inamicul(asa le punem in editor)
-     
-
+        
+    #spawnerul 0 e playerul, iar spawnerul 1 e inamicul(asa le punem in editor)
     def load_level(self, map_id):
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
@@ -76,8 +76,8 @@ class Game:
             elif spawner['variant'] == 2:
                 self.enemies.append(PotatoEnemy(self, spawner['pos'], (8, 15)))
 
-        
         self.projectiles = []
+        self.hero_projectiles = []
         self.particles = []
         self.scroll = [0, 0]
         for tile in self.tilemap.tilemap.values():
@@ -152,6 +152,27 @@ class Game:
                         self.projectiles.remove(projectile)
                         self.player.health -= 1
                         #cand il atince un proiectil, ii scadem viata
+            
+
+            for hero_projectile in self.hero_projectiles.copy():
+                hero_projectile[0][0] += hero_projectile[1]
+                hero_projectile[2] += 1
+                img = self.assets['rassengan']
+                self.display.blit(img, (hero_projectile[0][0] - img.get_width() / 2 - self.scroll[0], hero_projectile[0][1] - img.get_height() / 2 - self.scroll[1]))
+                if self.tilemap.solid_check(hero_projectile[0]):
+                    self.hero_projectiles.remove(hero_projectile)
+                elif hero_projectile[2] > 420:
+                    self.hero_projectiles.remove(hero_projectile)
+                for enemy in self.enemies.copy():
+                    if enemy.rect().collidepoint(hero_projectile[0]):
+                        self.enemies.remove(enemy)
+                        self.hero_projectiles.remove(hero_projectile)
+                        for i in range(20):
+                            angle = random.random() * math.pi * 2
+                            speed = random.random() * 0.5 + 0.5
+                            pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
+                            self.particles.append(Particle(self, 'shoots', enemy.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
+
 
             # la fiecare frame noi randam particulele pentru dash si le stegem dupa ce si au terminat animatia 
             for particle in self.particles.copy():
@@ -160,6 +181,7 @@ class Game:
                 if kill:
                     self.particles.remove(particle)
 
+            
             for event in pygame.event.get(): # ia inputul oricare ar fi el
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -172,7 +194,9 @@ class Game:
                     if event.key == pygame.K_UP or event.key == pygame.K_SPACE:
                         self.player.jump() # saritura
                     if event.key == pygame.K_x:
-                        self.player.dash()              
+                        self.player.dash()
+                    if event.key == pygame.K_z:
+                        self.player.attack()                  
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste
                         self.movement[0] = False

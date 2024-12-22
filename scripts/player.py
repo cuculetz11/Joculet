@@ -15,9 +15,11 @@ class Player(PhysicsEntity):
         self.can_double_jump = False  # New flag to control double jump
         self.dark_overlay = False
         self.overlay_timer = 0  # Timer to track when to remove the overlay
+        self.attack_cooldown = 0
 
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
+        self.attack_cooldown = max(0, self.attack_cooldown - 1)
         self.air_time += 1
 
         if self.collisions['down']:
@@ -62,6 +64,14 @@ class Player(PhysicsEntity):
             self.health = 0
             self.game.load_level(self.game.level)
             self.game.player.health = 3
+
+    def attack(self):
+        if self.attack_cooldown == 0:
+            if self.flip:
+                self.game.hero_projectiles.append([[self.rect().centerx - 7, self.rect().centery], -3, 0])
+            else:
+                self.game.hero_projectiles.append([[self.rect().centerx + 7, self.rect().centery], 3, 0])
+            self.attack_cooldown = 45
 
     def check_ramen(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.ramen[0]) * 16, int(self.game.ramen[1]) * 16, 10, 10)):
