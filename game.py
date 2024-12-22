@@ -92,6 +92,7 @@ class Game:
                 self.info = tile['pos']
 
         self.transition = -30
+    
     def render_overlay(self):
         if self.player.dark_overlay:  # Dacă trebuie să afișăm overlay
             # Creăm un strat întunecat

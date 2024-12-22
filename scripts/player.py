@@ -88,7 +88,11 @@ class Player(PhysicsEntity):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
             print("info")
             self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
-            self.display_message = "Eat Ramen"
+            self.display_message = (
+                "Eat Ramen to unlock a superpower: double jump "
+                "and progress to the next level."
+            )
+
             self.overlay_timer = 10  # timer pentru cat timp afisez un mesaj pe ecran
 
         else:
