@@ -48,6 +48,7 @@ class Game:
 
             'inima': load_image("inima.png"),
             'ramen': load_image("ramen.png"),
+            'rassengan': load_image("projectile_hero.png"),
         } #dictionar key:String, value: path la img
         
         self.health_hero = 3
@@ -156,7 +157,7 @@ class Game:
             for hero_projectile in self.hero_projectiles.copy():
                 hero_projectile[0][0] += hero_projectile[1]
                 hero_projectile[2] += 1
-                img = self.assets['kunai']
+                img = self.assets['rassengan']
                 self.display.blit(img, (hero_projectile[0][0] - img.get_width() / 2 - self.scroll[0], hero_projectile[0][1] - img.get_height() / 2 - self.scroll[1]))
                 if self.tilemap.solid_check(hero_projectile[0]):
                     self.hero_projectiles.remove(hero_projectile)
