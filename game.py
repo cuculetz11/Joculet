@@ -6,6 +6,7 @@ from scripts.utils import load_image, load_images, Animation
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.potato_enemy import PotatoEnemy
+from scripts.smart_enemy import SmartEnemy
 import math
 import random
 from scripts.particle import Particle
@@ -38,10 +39,16 @@ class Game:
             'jump_animation': Animation(load_images('entities/player/jump')),
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
             'particle/shoots' : Animation(load_images('particles/shoots'), img_dur=6, loop=False),
+
             'enemy/idle_animation': Animation(load_images('entities/enemy/idle'), img_dur=7),
             'enemy/run_animation': Animation(load_images('entities/enemy/run'), img_dur=5),
+
             'potato_enemy/idle_animation': Animation(load_images('entities/potato_enemy/idle'), img_dur=7),
             'potato_enemy/run_animation': Animation(load_images('entities/potato_enemy/run'), img_dur=5),
+
+            'smart_enemy/idle_animation': Animation(load_images('entities/smart_enemy/idle'), img_dur=7),
+            'smart_enemy/run_animation': Animation(load_images('entities/smart_enemy/run'), img_dur=5),
+            'smart_enemy/jump_animation': Animation(load_images('entities/smart_enemy/jump')),
 
             'kunai': load_image("kunai.png"),
             'shuriken': load_image("projectile.png"),
@@ -68,13 +75,15 @@ class Game:
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2)]):
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
             elif spawner['variant'] == 1:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
             elif spawner['variant'] == 2:
                 self.enemies.append(PotatoEnemy(self, spawner['pos'], (8, 15)))
+            elif spawner['variant'] == 3:
+                self.enemies.append(SmartEnemy(self, spawner['pos'], (8, 15)))    
 
         self.projectiles = []
         self.hero_projectiles = []

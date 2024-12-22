@@ -106,6 +106,14 @@ class Tilemap:
             neighbors = tuple(sorted(neighbors))
             if (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP):
                 tile['variant'] = AUTOTILE_MAP[neighbors]
+    def get_tile_at(self, pos):
+        """
+        Returnează tipul tile-ului la o poziție dată.
+        """
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            return self.tilemap[tile_loc]['type']
+        return None
 
     def physics_around(self,pos):
         recs = []
