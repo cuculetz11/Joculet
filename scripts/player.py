@@ -16,7 +16,9 @@ class Player(PhysicsEntity):
         self.dark_overlay = False
         self.overlay_timer = 0  # Timer to track when to remove the overlay
         self.attack_cooldown = 0
-
+        self.dark_overlay = False  # Indicator pentru overlay întunecat
+        self.display_message = ""  # Mesajul afișat pe ecran
+        self.overlay_timer = 0  # Timer pentru cât timp să fie afișat mesajul
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
         self.attack_cooldown = max(0, self.attack_cooldown - 1)
