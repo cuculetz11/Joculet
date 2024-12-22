@@ -113,7 +113,15 @@ class Tilemap:
             if tile['type'] in PHYSICS_TILES:
                 recs.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size)) #creem un dreptunghi pentru a realiza coliiziuni
         return recs
-    
+    def get_tile_at(self, pos):
+        """
+        retunreaza tipul tile-ului de la o anumita pozitie
+        """
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            return self.tilemap[tile_loc]['type']
+        return None
+
     def render(self,surf, offset = (0,0)):
         
         for tile in self.offgrid_tiles:

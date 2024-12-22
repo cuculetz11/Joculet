@@ -1,7 +1,7 @@
 import pygame
 import random
 from scripts.entities import PhysicsEntity
-
+from scripts.particle import Particle
 
 class Enemy(PhysicsEntity):
     """
@@ -13,9 +13,13 @@ class Enemy(PhysicsEntity):
     """
     def __init__(self, game, pos, size):
         super().__init__(game, 'enemy', pos, size)
-
+        self.health = 2
         self.walking = 0
 
+    def take_damage(self):
+        self.health -= 1
+        if self.health <= 0:
+            self.game.enemies.remove(self)
 
     def update(self, tilemap, movement=(0, 0)):
         if self.walking:
@@ -57,7 +61,8 @@ class Enemy(PhysicsEntity):
                 if self.rect().colliderect(self.game.player.rect()):
                     self.game.enemies.remove(self)
                     #self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=[0, 0], frame=random.randint(0, 7), life=20))
-
+                    #                 
+   
     def render(self, surf, offset=(0, 0)):
         super().render(surf, offset=offset)
 

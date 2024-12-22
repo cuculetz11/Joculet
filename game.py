@@ -6,6 +6,7 @@ from scripts.utils import load_image, load_images, Animation
 from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.potato_enemy import PotatoEnemy
+from scripts.smart_enemy import SmartEnemy
 import math
 import random
 from scripts.particle import Particle
@@ -46,6 +47,10 @@ class Game:
             'kunai': load_image("kunai.png"),
             'shuriken': load_image("projectile.png"),
 
+            'smart_enemy/idle_animation': Animation(load_images('entities/smart_enemy/idle'), img_dur=7),
+            'smart_enemy/run_animation': Animation(load_images('entities/smart_enemy/run'), img_dur=5),
+            'smart_enemy/jump_animation': Animation(load_images('entities/smart_enemy/jump')),
+
             'inima': load_image("inima.png"),
             'ramen': load_image("ramen.png"),
             'rassengan': load_image("projectile_hero.png"),
@@ -73,13 +78,16 @@ class Game:
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2)]):
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
             elif spawner['variant'] == 1:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
             elif spawner['variant'] == 2:
                 self.enemies.append(PotatoEnemy(self, spawner['pos'], (8, 15)))
+            elif spawner['variant'] == 3:
+                self.enemies.append(SmartEnemy(self, spawner['pos'], (8, 15)))    
+    
 
         self.projectiles = []
         self.hero_projectiles = []
@@ -101,11 +109,23 @@ class Game:
             dark_surface.fill((0, 0, 0))
             self.screen.blit(dark_surface, (0, 0))
 
-            # Afișăm textul pe ecranul final (scalat)
+            # Font pentru titlu
+            title_font = pygame.font.Font(None, 50)  # Font mai mare pentru titlu
+            title_text = title_font.render("INFO POINT", True, (255, 255, 255))  # Titlu alb
+            title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 90))  # Plasăm titlul sus
+            self.screen.blit(title_text, title_rect)  # Desenăm titlul pe ecran
+
+            # Font pentru textul informativ
             font = pygame.font.Font(None, 30)
-            text = font.render(self.player.display_message, True, (255, 255, 255))  # Text alb
-            text_rect = text.get_rect(center=(self.screen.get_width() // 2, 50))  # Poziționare sus
-            self.screen.blit(text, text_rect)  # Desenăm textul pe ecranul scalat
+            lines = self.player.display_message.split('\n')  # Împărțim mesajul în linii
+            y_offset = 200  # Poziționare mai jos pentru textul informativ
+
+            for line in lines:
+                text = font.render(line, True, (255, 255, 255))  # Text alb
+                text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_offset))  # Poziționare pe verticală
+                self.screen.blit(text, text_rect)  # Desenăm fiecare linie pe ecran
+                y_offset += text.get_height() + 5  # Creștem offset-ul pentru linia următoare
+
 
     def run(self):
         #metoda publica
@@ -184,7 +204,7 @@ class Game:
                     self.hero_projectiles.remove(hero_projectile)
                 for enemy in self.enemies.copy():
                     if enemy.rect().collidepoint(hero_projectile[0]):
-                        self.enemies.remove(enemy)
+                        enemy.take_damage()
                         self.hero_projectiles.remove(hero_projectile)
                         for i in range(20):
                             angle = random.random() * math.pi * 2
@@ -212,10 +232,17 @@ class Game:
                         self.movement[1] = True
                     if event.key == pygame.K_UP or event.key == pygame.K_SPACE:
                         self.player.jump() # saritura
-                    if event.key == pygame.K_x:
+                    if event.key == pygame.K_x and self.player.can_dash:
                         self.player.dash()
-                    if event.key == pygame.K_z:
-                        self.player.attack()                  
+                    if event.key == pygame.K_z and self.player.can_projectile:
+                        self.player.attack()
+                    if event.key == pygame.K_t:  #mapa pentru testare
+                        self.player.can_dash = True
+                        self.player.can_projectile = True
+                        self.player.can_double_jump = True
+                        self.level = 4
+                        self.load_level(4)
+
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste
                         self.movement[0] = False

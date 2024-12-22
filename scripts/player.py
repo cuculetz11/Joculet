@@ -6,6 +6,10 @@ from scripts.entities import PhysicsEntity
 from scripts.particle import Particle
 
 class Player(PhysicsEntity):
+    """
+    dash ul ia cate 2 din viata enemy-ului
+    iar aruncatu cu proiectile ii ia 1 viata enemy-ului
+    """
     def __init__(self, game, e_type, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0  # timpul in aer pentru a sti cand sa afisam animatia de saritura
@@ -13,10 +17,11 @@ class Player(PhysicsEntity):
         self.dashing = 0
         self.health = 3
         self.can_double_jump = False  # New flag to control double jump
+        self.can_dash = False  # New flag to control dash
+        self.can_projectile = False  # New flag to control projectile
         self.attack_cooldown = 0
         self.dark_overlay = False  # Indicator pentru overlay întunecat
         self.display_message = ""  # Mesajul afișat pe ecran
-        self.overlay_timer = 0  # Timer pentru cât timp să fie afișat mesajul
         
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
@@ -76,10 +81,13 @@ class Player(PhysicsEntity):
 
     def check_ramen(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.ramen[0]) * 16, int(self.game.ramen[1]) * 16, 10, 10)):
-            print("ramen")
-            self.can_double_jump = True  # Unlock double jump
-            self.jumps = 2  # Grant double jump immediately
-
+            if self.game.level == 0:
+                self.can_double_jump = True  # Unlock double jump
+                self.jumps = 2  # Grant double jump immediately
+            if self.game.level == 1:
+                self.can_dash = True
+            if self.game.level == 2:
+                self.can_projectile = True    
             # Load the next level
             self.game.level += 1
             self.game.load_level(self.game.level)
@@ -88,18 +96,28 @@ class Player(PhysicsEntity):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
             print("info")
             self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
-            self.display_message = (
-                "Eat Ramen to unlock a superpower: double jump "
-                "and progress to the next level."
-            )
-
-            self.overlay_timer = 10  # timer pentru cat timp afisez un mesaj pe ecran
-
+            if(self.game.level == 0):
+                self.display_message = (
+                    "Naruto is searching for Sasuke to bring him back to the village\n"
+                    "He has lost his powers and needs to regain them.\n"
+                    "Eat Ramen to unlock a superpower: double jump "
+                    "and progress to the next level."
+                )
+            if(self.game.level == 1):
+                self.display_message = (
+                    "Eat Ramen to unlock a superpower: dash( press x to use it)\n"
+                    "With dash you can kill enemies and progress to the next level."
+                )
+            if(self.game.level == 2):
+                self.display_message = (
+                    "Eat Ramen to unlock a superpower: rassengan( press z to use it)\n"
+                    "With rassengan you can kill enemies and progress to the next level."        
+                )
+            if(self.game.level == 3):
+                self.display_message = (
+                    "Get ready for the war"
+                )
         else:
-            # cand nu mai atinge info, se va sterge mesajul si overlay-ul
-            if self.overlay_timer > 0:
-                self.overlay_timer -= 1
-            if self.overlay_timer == 0:
                 self.dark_overlay = False  # dezactivez overlay-ul
                 self.display_message = ""
 

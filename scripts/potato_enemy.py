@@ -18,6 +18,8 @@ class PotatoEnemy(PhysicsEntity):
 
         self.walking = 0
 
+    def take_damage(self):
+        self.game.enemies.remove(self)
 
     def update(self, tilemap, movement=(0, 0)):
         if self.walking:
@@ -30,17 +32,7 @@ class PotatoEnemy(PhysicsEntity):
                     movement = (-0.5 if self.flip else 0.5, movement[1])
             else:
                 self.flip = not self.flip
-            self.walking = max(0, self.walking - 1)
-
-            # cand se opreste din mers, ataca
-            # if not self.walking:
-            #     dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
-            #     if (abs(dis[1]) < 16): # daca distanta dintre player si enemy e mai mica de 16 pixeli, atunci impusca
-            #         if (self.flip and dis[0] < 0): # verific daca e cu fata
-            #             self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -2, 0])
-            #         if (not self.flip and dis[0] > 0):
-            #             self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 2, 0])
-            #                                                                  #[X,Y], directia/viteza, timer                  
+            self.walking = max(0, self.walking - 1)                
 
 
         elif random.random() < 0.01: # daca nu merge, alege alta directie (1% sansa)
