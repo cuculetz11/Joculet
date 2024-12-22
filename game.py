@@ -87,6 +87,19 @@ class Game:
                 self.info = tile['pos']
 
         self.transition = -30
+    def render_overlay(self):
+        if self.player.dark_overlay:  # Dacă trebuie să afișăm overlay
+            # Creăm un strat întunecat
+            dark_surface = pygame.Surface(self.screen.get_size())
+            dark_surface.set_alpha(140)  # Transparență
+            dark_surface.fill((0, 0, 0))
+            self.screen.blit(dark_surface, (0, 0))
+
+            # Afișăm textul pe ecranul final (scalat)
+            font = pygame.font.Font(None, 30)
+            text = font.render(self.player.display_message, True, (255, 255, 255))  # Text alb
+            text_rect = text.get_rect(center=(self.screen.get_width() // 2, 50))  # Poziționare sus
+            self.screen.blit(text, text_rect)  # Desenăm textul pe ecranul scalat
 
     def run(self):
         #metoda publica
@@ -203,7 +216,7 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False        
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
-
+            self.render_overlay()
             pygame.display.update()
 
             self.clock.tick(70) #dynamic sleep

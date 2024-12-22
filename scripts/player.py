@@ -14,7 +14,9 @@ class Player(PhysicsEntity):
         self.health = 3
         self.can_double_jump = False  # New flag to control double jump
         self.attack_cooldown = 0
-
+        self.dark_overlay = False  # Indicator pentru overlay întunecat
+        self.display_message = ""  # Mesajul afișat pe ecran
+        self.overlay_timer = 0  # Timer pentru cât timp să fie afișat mesajul
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
         self.attack_cooldown = max(0, self.attack_cooldown - 1)
@@ -84,6 +86,17 @@ class Player(PhysicsEntity):
     def check_info(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
             print("info")
+            self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
+            self.display_message = "Eat Ramen"
+            self.overlay_timer = 10  # timer pentru cat timp afisez un mesaj pe ecran
+
+        else:
+            # cand nu mai atinge info, se va sterge mesajul si overlay-ul
+            if self.overlay_timer > 0:
+                self.overlay_timer -= 1
+            if self.overlay_timer == 0:
+                self.dark_overlay = False  # dezactivez overlay-ul
+                self.display_message = ""
 
     def jump(self):
         if self.jumps > 0:
