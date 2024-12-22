@@ -13,12 +13,11 @@ class Player(PhysicsEntity):
         self.dashing = 0
         self.health = 3
         self.can_double_jump = False  # New flag to control double jump
-        self.dark_overlay = False
-        self.overlay_timer = 0  # Timer to track when to remove the overlay
         self.attack_cooldown = 0
         self.dark_overlay = False  # Indicator pentru overlay întunecat
         self.display_message = ""  # Mesajul afișat pe ecran
         self.overlay_timer = 0  # Timer pentru cât timp să fie afișat mesajul
+        
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
         self.attack_cooldown = max(0, self.attack_cooldown - 1)
@@ -116,16 +115,3 @@ class Player(PhysicsEntity):
     def render(self, surf, offset=(0, 0)):
         if abs(self.dashing) <= 60:
             super().render(surf, offset=offset)
-
-
-        if self.dark_overlay:  # daca sunt in cazul in care ating info, activez overlay-ul
-            dark_surface = pygame.Surface(surf.get_size())
-            dark_surface.set_alpha(140)
-            dark_surface.fill((0, 0, 0))
-            surf.blit(dark_surface, (0, 0))
-
-            # Render the message using the cute font
-            font = pygame.font.Font(None, 30)  # Font for the message
-            text = font.render(self.display_message, True, (0, 0, 0))  # Black text
-            text_rect = text.get_rect(center=(surf.get_width() // 2, 30))  # Position text at the top of the screen
-            surf.blit(text, text_rect)  # Draw the message on the screen
