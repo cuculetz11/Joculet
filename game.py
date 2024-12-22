@@ -56,16 +56,17 @@ class Game:
         self.tilemap = Tilemap(self,tile_size = 16)
         self.ramen = []
         self.info = []
-        self.load_level(3)
-        self.clouds = Clouds(self.assets['clouds'], count=16)
 
-       
+        self.level = 0
+        self.load_level(self.level)
+        self.clouds = Clouds(self.assets['clouds'], count=16)
 
         #spawnerul 0 e playerul, iar spawnerul 1 e inamicul(asa le punem in editor)
      
 
     def load_level(self, map_id):
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
+        self.player.health = 3
         self.enemies = []
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2)]):
             if spawner['variant'] == 0:
@@ -85,10 +86,18 @@ class Game:
             if tile['type'] == 'decor' and tile['variant'] == 4:
                 self.info = tile['pos']
 
+        self.transition = -30
+
     def run(self):
         #metoda publica
         while True:
             self.display.blit(self.assets['background'], (0,0)) #destination.blit(source, position)
+
+            if not len(self.enemies): # asta ar fi daca am omori toti enemies, dar vrem dupa ce atinge ramen ul
+                self.transition += 1
+            if self.transition < 0:
+                self.transition += 1
+
             
             self.scroll[0] += int((self.player.pos[0] - self.scroll[0] - 160) / 8) # -x este pentru o comensare sa fie la jumatatea ecarnului, iar impartirea este pentru a aduga un smooth scroll
             self.scroll[1] += int((self.player.pos[1] - self.scroll[1] - 120) / 8)
@@ -112,7 +121,7 @@ class Game:
             else:
                 a = a - 1
                 if a == 0:
-                    self.load_level(3)
+                    self.load_level(self.level)
                     self.player.health = 3
 
             for i in range(self.player.health):#pentru afisarea vietii eroului
@@ -155,7 +164,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit() 
-                if event.type == pygame.KEYDOWN: #evenimet generat de apasarea unei taste
+                if event.type == pygame.KEYDOWN: #eveniment generat de apasarea unei taste
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
