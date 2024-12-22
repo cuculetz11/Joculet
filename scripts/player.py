@@ -13,6 +13,8 @@ class Player(PhysicsEntity):
         self.dashing = 0
         self.health = 3
         self.can_double_jump = False  # New flag to control double jump
+        self.dark_overlay = False
+        self.overlay_timer = 0  # Timer to track when to remove the overlay
 
     def update(self, tilemap, movement=(0, 0)):
         super().update(tilemap, movement)
@@ -74,6 +76,17 @@ class Player(PhysicsEntity):
     def check_info(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
             print("info")
+            self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
+            self.display_message = "Eat Ramen"
+            self.overlay_timer = 10  # timer pentru cat timp afisez un mesaj pe ecran
+
+        else:
+            # cand nu mai atinge info, se va sterge mesajul si overlay-ul
+            if self.overlay_timer > 0:
+                self.overlay_timer -= 1
+            if self.overlay_timer == 0:
+                self.dark_overlay = False  # dezactivez overlay-ul
+                self.display_message = ""
 
     def jump(self):
         if self.jumps > 0:
@@ -91,3 +104,16 @@ class Player(PhysicsEntity):
     def render(self, surf, offset=(0, 0)):
         if abs(self.dashing) <= 60:
             super().render(surf, offset=offset)
+
+
+        if self.dark_overlay:  # daca sunt in cazul in care ating info, activez overlay-ul
+            dark_surface = pygame.Surface(surf.get_size())
+            dark_surface.set_alpha(140)
+            dark_surface.fill((0, 0, 0))
+            surf.blit(dark_surface, (0, 0))
+
+            # Render the message using the cute font
+            font = pygame.font.Font(None, 30)  # Font for the message
+            text = font.render(self.display_message, True, (0, 0, 0))  # Black text
+            text_rect = text.get_rect(center=(surf.get_width() // 2, 30))  # Position text at the top of the screen
+            surf.blit(text, text_rect)  # Draw the message on the screen
