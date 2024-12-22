@@ -17,8 +17,8 @@ class SmartEnemy(PhysicsEntity):
         self.jump_cooldown = 0
         self.chase_distance = 200  # Distanța maximă la care urmărește jucătorul
         self.shooting_distance = 150  # Distanța maximă la care poate trage în jucător
-        self.speed = 1  # Viteza de deplasare
-        self.jump_power = -5  # Puterea săriturii
+        self.speed = 2 # Viteza de deplasare
+        self.jump_power = -3  # Puterea săriturii
 
     def update(self, tilemap, movement=(0, 0)):
         player_dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
@@ -42,7 +42,7 @@ class SmartEnemy(PhysicsEntity):
         # Condiția de săritură: există un obstacol jos sau obstacole pe două nivele
         if (obstacle_base_tile in ['stone', 'grass'] or obstacle_top_tile in ['stone', 'grass']) \
                 and self.collisions['down'] and self.jump_cooldown == 0:
-            #self.velocity[1] = self.jump_power
+            self.velocity[1] = self.jump_power
             self.jump_cooldown = 30  # Resetăm cooldown-ul pentru sărituri
 
 
