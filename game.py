@@ -49,6 +49,11 @@ class Game:
             'inima': load_image("inima.png"),
             'ramen': load_image("ramen.png"),
             'rassengan': load_image("projectile_hero.png"),
+            'run_animation': Animation(load_images('entities/player/run'), img_dur=5),
+            'jump_animation': Animation(load_images('entities/player/jump'))
+
+
+            
         } #dictionar key:String, value: path la img
         
         self.health_hero = 3
