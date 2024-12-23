@@ -49,6 +49,7 @@ class PotatoEnemy(PhysicsEntity):
         #daca playerul ataca prin dash il omoara pe dusman, daca il atinge fara sa fie in dash, ii scade viata
         if abs(self.game.player.dashing) >= 60: 
                 if self.rect().colliderect(self.game.player.rect()):
+                    self.game.sfx['hit'].play()
                     self.game.enemies.remove(self)
                     
         else:

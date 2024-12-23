@@ -32,7 +32,7 @@ class Game:
             'grass' : load_images('tiles/grass'),
             'stone' : load_images('tiles/stone'),
             'large_decor' : load_images('tiles/large_decor'),
-            'background' : load_image('background.png'),
+            'background' : load_image('sky.jpg'),
             'clouds' : load_images('clouds'),
             'idle_animation': Animation(load_images('entities/player/idle'), img_dur=7),
             'run_animation': Animation(load_images('entities/player/run'), img_dur=5),
@@ -64,22 +64,24 @@ class Game:
             'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
             'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
-            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+            'hit': pygame.mixer.Sound('data/sfx/hit1.wav'),
             'ramen': pygame.mixer.Sound('data/sfx/ramen.wav'),
             'info': pygame.mixer.Sound('data/sfx/info.wav'),
             'death': pygame.mixer.Sound('data/sfx/death.wav'),
-            'new_level': pygame.mixer.Sound('data/sfx/new_level.wav')
-            # mai pun sunetul pentru info, ramen si moarte baravo da
+            'new_level': pygame.mixer.Sound('data/sfx/new_level.wav'),
+            'win': pygame.mixer.Sound('data/sfx/win.wav'),
+            'boss_kill': pygame.mixer.Sound('data/sfx/boss_kill.wav')
         }
 
         self.sfx['jump'].set_volume(0.6)
         self.sfx['dash'].set_volume(0.3)
         self.sfx['shoot'].set_volume(0.4)
-        self.sfx['hit'].set_volume(0.8)
+        self.sfx['hit'].set_volume(0.6)
         self.sfx['ramen'].set_volume(0.7)
-        self.sfx['info'].set_volume(0.7)
+        self.sfx['info'].set_volume(0.2)
         self.sfx['death'].set_volume(0.2)
         self.sfx['new_level'].set_volume(0.6)
+        self.sfx['win'].set_volume(1)
         
         self.health_hero = 3
         self.player = Player(self, 'player', (50,50), (8, 15))
@@ -88,7 +90,7 @@ class Game:
         self.ramen = []
         self.info = []
         self.sasuke = []
-
+        self.orochimaru = True
         self.level = 0
         self.load_level(self.level)
         self.clouds = Clouds(self.assets['clouds'], count=16)
@@ -99,7 +101,8 @@ class Game:
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3), ('spawners', 4)]):
+        self.player.ramen_cool_down = 20
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
             elif spawner['variant'] == 1:
@@ -108,8 +111,6 @@ class Game:
                 self.enemies.append(PotatoEnemy(self, spawner['pos'], (8, 15)))
             elif spawner['variant'] == 3:
                 self.enemies.append(SmartEnemy(self, spawner['pos'], (8, 15)))    
-            elif spawner['variant'] == 4:
-                self.sasuke = spawner['pos'] # trebuie facuta o clasa cu sasuke sau cv sa l tin aminta si sa i randeze imaginea pt ca extract il sterge
 
         self.projectiles = []
         self.hero_projectiles = []
@@ -120,7 +121,11 @@ class Game:
                 self.ramen = tile['pos']
             if tile['type'] == 'decor' and tile['variant'] == 4:
                 self.info = tile['pos']
-
+        if(self.level == 4):
+            for tile in self.tilemap.offgrid_tiles:
+                if tile['type'] == 'decor' and tile['variant'] == 6:
+                    self.sasuke = tile['pos']
+                    break       
         self.transition = -30
     
     def render_overlay(self):
@@ -132,13 +137,13 @@ class Game:
             self.screen.blit(dark_surface, (0, 0))
 
             # Font pentru titlu
-            title_font = pygame.font.Font(None, 50)  # Font mai mare pentru titlu
-            title_text = title_font.render("INFO POINT", True, (255, 255, 255))  # Titlu alb
+            title_font = pygame.font.Font(None, 60)  # Font mai mare pentru titlu
+            title_text = title_font.render("INFO POINT", True, (255, 69, 0))  # Titlu alb
             title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 90))  # Plasăm titlul sus
             self.screen.blit(title_text, title_rect)  # Desenăm titlul pe ecran
 
             # Font pentru textul informativ
-            font = pygame.font.Font(None, 30)
+            font = pygame.font.Font('data/fonts/naruto.ttf', 20)
             lines = self.player.display_message.split('\n')  # Împărțim mesajul în linii
             y_offset = 200  # Poziționare mai jos pentru textul informativ
 
@@ -163,7 +168,8 @@ class Game:
             if self.transition < 0:
                 self.transition += 1
 
-            
+            background_scaled = pygame.transform.scale(self.assets['background'], self.display.get_size())
+            self.display.blit(background_scaled, (0, 0))  # Draw the scaled image
             self.scroll[0] += int((self.player.pos[0] - self.scroll[0] - 160) / 8) # -x este pentru o comensare sa fie la jumatatea ecarnului, iar impartirea este pentru a aduga un smooth scroll
             self.scroll[1] += int((self.player.pos[1] - self.scroll[1] - 120) / 8)
             
@@ -174,8 +180,8 @@ class Game:
             self.player.check_fall()
             self.player.check_ramen()
             self.player.check_info()
-            # if(self.level == 4):
-            #     self.player.check_sasuke()
+            if(self.level == 4):
+                self.player.check_sasuke()
             # randam enemies
             for enemy in self.enemies.copy():
                 enemy.update(self.tilemap, (0, 0))
@@ -230,7 +236,7 @@ class Game:
                 self.display.blit(img, (hero_projectile[0][0] - img.get_width() / 2 - self.scroll[0], hero_projectile[0][1] - img.get_height() / 2 - self.scroll[1]))
                 if self.tilemap.solid_check(hero_projectile[0]):
                     self.hero_projectiles.remove(hero_projectile)
-                elif hero_projectile[2] > 420:
+                elif hero_projectile[2] > 360:
                     self.hero_projectiles.remove(hero_projectile)
                 for enemy in self.enemies.copy():
                     if enemy.rect().collidepoint(hero_projectile[0]):
@@ -266,7 +272,7 @@ class Game:
                         self.player.jump() # saritura
                     if event.key == pygame.K_x and self.player.can_dash:
                         self.player.dash()
-                    if event.key == pygame.K_z and self.player.can_projectile:
+                    if event.key == pygame.K_s and self.player.can_projectile:
                         self.player.attack()
                     if event.key == pygame.K_t:  #mapa pentru testare
                         self.player.can_dash = True

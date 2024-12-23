@@ -29,6 +29,8 @@ class SmartEnemy(PhysicsEntity):
 
     def update(self, tilemap, movement=(0, 0)):
         if self.health <= 0:
+            self.game.sfx['boss_kill'].play()
+            self.game.orochimaru = False
             self.game.enemies.remove(self)
             return
 
@@ -69,14 +71,14 @@ class SmartEnemy(PhysicsEntity):
         # Dacă inamicul nu are cooldown de așteptare, încearcă să tragă
         if player_distance < self.shooting_distance and self.wait_time == 0:
             if self.attack_cooldown == 0:
-                bullet_speed = 4 if player_dis[0] > 0 else -4
+                bullet_speed = 2 if player_dis[0] > 0 else -2
                 self.game.sfx['shoot'].play()
                 self.game.projectiles.append([
                     [self.rect().centerx, self.rect().centery],  # Poziția glonțului
                     bullet_speed,  # Direcția și viteza
                     0  # Timer
                 ])
-                self.attack_cooldown = 20  # Cooldown pentru următorul atac
+                self.attack_cooldown = 50  # Cooldown pentru următorul atac
 
         # Reducem cooldown-ul pentru atacuri
         if self.attack_cooldown > 0:
