@@ -151,8 +151,8 @@ class Game:
 
     def run(self):
         #metoda publica
-        pygame.mixer.music.load('data/music2.wav')
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.load('data/naruto_music.wav')
+        pygame.mixer.music.set_volume(0.5)      
         pygame.mixer.music.play(-1)
 
         while True:
