@@ -9,7 +9,7 @@ def load_image(name):
     img.set_colorkey((0, 0, 0))
     return img
 
-#aici putem face o functie ce incarca automat toate pozele dintr-un director pe care le vrem
+# aici putem face o functie ce incarca automat toate pozele dintr-un director pe care le vrem
 def load_images(path):
     images = []
 
@@ -28,14 +28,14 @@ class Animation:
         self.images = images
         self.img_dur = img_dur
         self.loop = loop
-        self.frame = 0  #reprezinta un contor ce ne ajuta sa stim ce imagine sa afisam
+        self.frame = 0  # reprezinta un contor ce ne ajuta sa stim ce imagine sa afisam
         self.done = False
 
     def copy(self):
         return Animation(self.images, self.img_dur, self.loop)
     
     def img(self):
-        return self.images[int(self.frame / self.img_dur)] #returneaza imaginea curenta
+        return self.images[int(self.frame / self.img_dur)] # returneaza imaginea curenta
     # frame = i(indexul imaginii) * durata imaginii pe frameuri
     # acest frame creste la fiecare cadru si practic datorita acestuia putem sa stim ce imagine sa afisam
     def update(self):

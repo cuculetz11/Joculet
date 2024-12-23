@@ -26,9 +26,11 @@ class Particle:
         
         self.pos[0] += self.velocity[0]
         self.pos[1] += self.velocity[1]
+        
         #folosit pentru deplasarea particulelor
         
         self.animation.update()
+        
         #in caz ca vreum sa eliminam particulele ne folosiim de kill  
         return kill
     

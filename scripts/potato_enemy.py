@@ -62,7 +62,7 @@ class PotatoEnemy(PhysicsEntity):
                     self.game.player.pos[0] = self.game.player.pos[0] - 30
 
                 for i in range(20):
-                        #exact acelasi lucru ca la dash numai ca am schimbat culoarea particulelor
+                    # exact acelasi lucru ca la dash numai ca am schimbat culoarea particulelor
                     angle = random.random() * math.pi * 2
                     speed = random.random() * 0.5 + 0.5
                     pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]

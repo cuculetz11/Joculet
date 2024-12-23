@@ -18,7 +18,6 @@ class Game:
     """
     def __init__(self):
         #metoda privata
-
         pygame.init()
 
         pygame.display.set_caption('editor')
@@ -37,14 +36,14 @@ class Game:
             'spawners': load_images('tiles/spawners'),
         } #dictionar key:String, value: path la img
           
-        self.movement = [False, False, False, False] #move camera up, down, left, right
+        self.movement = [False, False, False, False] # move camera up, down, left, right
         
         self.tilemap = Tilemap(self,tile_size = 16)
 
         self.scroll = [0,0]
     
         self.tile_list = list(self.assets)
-        self.tile_group = 0 #indexul tileului din lista
+        self.tile_group = 0 # indexul tileului din lista
         self.tile_variant = 0
 
         try:
@@ -59,9 +58,9 @@ class Game:
         self.ongrid = True
 
     def run(self):
-        #metoda publica
+        # metoda publica
         while True:
-            self.display.fill((0,0,0)) #destination.blit(source, position)
+            self.display.fill((0,0,0)) # destination.blit(source, position)
             
             self.scroll[0] += (self.movement[1] - self.movement[0]) * 2 #miscarea camerei pe axa x
             self.scroll[1] += (self.movement[3] - self.movement[2]) * 2 #miscarea camerei pe axa y
@@ -72,7 +71,7 @@ class Game:
             curr_tile_img.set_alpha(128)
 
 
-            mpos = pygame.mouse.get_pos() #coordonatele mouseului
+            mpos = pygame.mouse.get_pos() # coordonatele mouse-ului
             mpos = (mpos[0] / RENDER_SCALE, mpos[1] / RENDER_SCALE)
             tile_pos = (int((mpos[0] + self.scroll[0]) // self.tilemap.tile_size), int((mpos[1] + self.scroll[1]) // self.tilemap.tile_size))
             
@@ -88,12 +87,12 @@ class Game:
             if self.right_clicking:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
                 if tile_loc in self.tilemap.tilemap:
-                    del self.tilemap.tilemap[tile_loc] #stergem un tile din tilemap
+                    del self.tilemap.tilemap[tile_loc] # stergem un tile din tilemap
                 for tile in self.tilemap.offgrid_tiles.copy():
                     tile_img = self.assets[tile['type']][tile['variant']]
                     tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
                     if tile_r.collidepoint(mpos):
-                        self.tilemap.offgrid_tiles.remove(tile) #stergem un tile din lista de tileuri ce nu sunt pe grid
+                        self.tilemap.offgrid_tiles.remove(tile) # stergem un tile din lista de tileuri ce nu sunt pe grid
 
 
             self.display.blit(curr_tile_img, (5,5))
@@ -103,7 +102,7 @@ class Game:
                     pygame.quit()
                     sys.exit() 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:     #click stanga
+                    if event.button == 1:     # click stanga
                         self.clicking = True
                         if not self.ongrid:
                             self.tilemap.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': (mpos[0] + self.scroll[0], mpos[1] + self.scroll[1])}) #aduga in lista de elemenete ce nu sunt pe grid
@@ -111,15 +110,15 @@ class Game:
                         self.right_clicking = True
                     if self.shift:    
                         if event.button == 4:
-                            self.tile_variant = (self.tile_variant + 1) % len(self.assets[self.tile_list[self.tile_group]]) #dam scroll prin tileuri
+                            self.tile_variant = (self.tile_variant + 1) % len(self.assets[self.tile_list[self.tile_group]]) # dam scroll prin tileuri
                         if event.button == 5:
                             self.tile_variant = (self.tile_variant - 1) % len(self.assets[self.tile_list[self.tile_group]])
                     else:
                         if event.button == 4:
-                            self.tile_group = (self.tile_group + 1) % len(self.tile_list) #dam scroll prin tileuri
+                            self.tile_group = (self.tile_group + 1) % len(self.tile_list) # dam scroll prin tileuri
                         if event.button == 5:
                             self.tile_group = (self.tile_group - 1) % len(self.tile_list)
-                        self.tile_variant = 0 #il facem 0 ca altfel ar fi dat out of range daca cumva ne duceam la un tile cu mai multe variante si ramaneam la un index mare si apor reveneam la un tile ce are mai putine variante
+                        self.tile_variant = 0 # il facem 0 ca altfel ar fi dat out of range daca cumva ne duceam la un tile cu mai multe variante si ramaneam la un index mare si apor reveneam la un tile ce are mai putine variante
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
@@ -127,7 +126,7 @@ class Game:
                     if event.button == 3:
                         self.right_clicking = False
 
-                if event.type == pygame.KEYDOWN: #evenimet generat de apasarea unei taste
+                if event.type == pygame.KEYDOWN: # eveniment generat de apasarea unei taste
                     if event.key == pygame.K_a:
                         self.movement[0] = True
                     if event.key == pygame.K_d:
@@ -151,7 +150,7 @@ class Game:
                     if event.key == pygame.K_o:
                         self.tilemap.save('map.json')
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_a:#evenimet generat de ridicarea unei taste
+                    if event.key == pygame.K_a: #eveniment generat de ridicarea unei taste
                         self.movement[0] = False
                     if event.key == pygame.K_d:
                         self.movement[1] = False
@@ -163,6 +162,6 @@ class Game:
 
             pygame.display.update()
 
-            self.clock.tick(70) #dynamic sleep
+            self.clock.tick(70) # dynamic sleep
 
-Game().run() #instantiem clasa si apelam metoda run
+Game().run() # instantiem clasa si apelam metoda run

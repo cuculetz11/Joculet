@@ -16,12 +16,12 @@ class Player(PhysicsEntity):
         self.jumps = 1
         self.dashing = 0
         self.health = 3
-        self.can_double_jump = False  # New flag to control double jump
-        self.can_dash = False  # New flag to control dash
-        self.can_projectile = False  # New flag to control projectile
+        self.can_double_jump = False  # control double jump
+        self.can_dash = False  # control dash
+        self.can_projectile = False  # controloeza proiectilele
         self.attack_cooldown = 0
         self.dark_overlay = False  # Indicator pentru overlay întunecat
-        self.display_message = ""  # Mesajul afișat pe ecran
+        self.display_message = ""  # Mesajul afisat pe ecran
         self.ramen_cool_down = 20  # Cooldown pentru a evita consumul rapid de ramen
 
     def update(self, tilemap, movement=(0, 0)):
@@ -31,9 +31,9 @@ class Player(PhysicsEntity):
 
         if self.collisions['down']:
             self.air_time = 0
-            self.jumps = 1  # Reset to 1 jump by default
+            self.jumps = 1  # reseteaza jump-urile
             if self.can_double_jump:
-                self.jumps = 2  # Allow double jump only if unlocked
+                self.jumps = 2  # permite double jump daca a mancat ramen
 
         if self.air_time > 4:
             self.set_action('jump')    
@@ -88,13 +88,13 @@ class Player(PhysicsEntity):
             
         if self.ramen_cool_down == 0:  
             if self.game.level == 0:
-                self.can_double_jump = True  # Unlock double jump
-                self.jumps = 2  # Grant double jump immediately
+                self.can_double_jump = True  # deblocheaza double jump
+                self.jumps = 2  # primeste un jump in plus
             if self.game.level == 1:
                 self.can_dash = True
             if self.game.level == 2:
                 self.can_projectile = True    
-            # Load the next level
+            # incarca urmatorul nivel
             self.game.sfx['new_level'].play()
             self.game.level += 1
             self.game.load_level(self.game.level)
@@ -130,21 +130,21 @@ class Player(PhysicsEntity):
 
     def check_sasuke(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.sasuke[0]), int(self.game.sasuke[1]), 10, 10)) and self.game.orochimaru == False:
-            # Marchează jocul ca fiind câștigat
+            # Marcheaza jocul ca fiind castigat
             self.game.win = True
             pygame.mixer.music.stop()
         
-            # Redă efectul sonor de câștig
+            # Reda efectul sonor de castig
             self.game.sfx['win'].play()
-            # Creează un overlay întunecat
-            overlay = pygame.Surface(self.game.screen.get_size())  # Creează un ecran de aceeași dimensiune
-            overlay.set_alpha(150)  # Setează transparența (0 - complet transparent, 255 - complet opac)
-            overlay.fill((0, 0, 0))  # Colorează overlay-ul cu negru
+            # Creeaza un overlay intunecat
+            overlay = pygame.Surface(self.game.screen.get_size())  # Creeaza un ecran de aceeasi dimensiune
+            overlay.set_alpha(150)  # Seteaza transparenta (0 - complet transparent, 255 - complet opac)
+            overlay.fill((0, 0, 0))  # Coloreaza overlay-ul in negru
 
-            # Afișează mesajul de câștig
+            # Afiseaza mesajul de castig
             font = pygame.font.Font('data/fonts/naruto.ttf', 45)  # Font personalizat
             text = font.render("You saved Sasuke! You won!", True, (255, 165, 0))  # Portocaliu Naruto
-            # Blochează interacțiunile și afișează mesajul
+            # Blochează interacțiunea cu jocul si afiseaza mesajul
             running = True
             while running:
                 for event in pygame.event.get():
@@ -152,16 +152,16 @@ class Player(PhysicsEntity):
                         pygame.quit()
                         exit()
 
-                # Desenează overlay-ul și mesajul
+                # Deseneaza overlay-ul si mesajul
                 self.game.screen.blit(overlay, (0, 0))
                 self.game.screen.blit(text, (self.game.screen.get_width() // 2 - text.get_width() // 2,
                                             self.game.screen.get_height() // 2 - text.get_height() // 2))
 
-                pygame.display.flip()  # Actualizează ecranul
-                pygame.time.wait(7000)  # Așteaptă 3 secunde
-                running = False  # Închide bucla
+                pygame.display.flip()  # Actualizeaza ecranul
+                pygame.time.wait(7000)  # Asteapta
+                running = False  # inchide bucla
 
-            # Oprește jocul
+            # Opreste jocul
             pygame.quit()
             exit()
 

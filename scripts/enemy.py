@@ -25,7 +25,7 @@ class Enemy(PhysicsEntity):
         if self.walking:
             # daca in fata lui este gol, atunci se va intoarce
             if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)): 
-                #practic de la mijlocul enemy-ului  ne uitam 7 pixeli in fata sau in spate si sub el daca exista un tile solid
+                # practic de la mijlocul enemy-ului  ne uitam 7 pixeli in fata sau in spate si sub el daca exista un tile solid
                 if (self.collisions['right'] or self.collisions['left']):
                     self.flip = not self.flip
                 else:

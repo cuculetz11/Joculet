@@ -13,7 +13,7 @@ from scripts.particle import Particle
 
 class Game:
     def __init__(self):
-        #metoda privata
+        # metoda privata
 
         pygame.init()
 
@@ -24,10 +24,10 @@ class Game:
 
         self.clock = pygame.time.Clock()
   
-        self.movement = [False, False] #mers stanga, dreapta
+        self.movement = [False, False] # mers stanga, dreapta
 
         self.assets = {
-            'player': load_image('entities/player.png'), #resursele jocului asta i playerul
+            'player': load_image('entities/player.png'), # resursele jocului
             'decor' : load_images('tiles/decor'),
             'grass' : load_images('tiles/grass'),
             'stone' : load_images('tiles/stone'),
@@ -58,7 +58,7 @@ class Game:
             'jump_animation': Animation(load_images('entities/player/jump'))
 
             
-        } #dictionar key:String, value: path la img
+        } #dictionar key: String, value: path la img
 
         self.sfx = {
             'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
@@ -96,7 +96,7 @@ class Game:
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
         
-    #spawnerul 0 e playerul, iar spawnerul 1 e inamicul(asa le punem in editor)
+    # spawnerul 0 e playerul, iar urmatorii sunt inamicii (pentru editor)
     def load_level(self, map_id):
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
@@ -129,33 +129,33 @@ class Game:
         self.transition = -30
     
     def render_overlay(self):
-        if self.player.dark_overlay:  # Dacă trebuie să afișăm overlay
-            # Creăm un strat întunecat
+        if self.player.dark_overlay:  # in cazul in care trebuie sa afisam un mesaj informativ (overlay)
+            # Cream un strat intunecat
             dark_surface = pygame.Surface(self.screen.get_size())
-            dark_surface.set_alpha(140)  # Transparență
+            dark_surface.set_alpha(140)  # transparenta
             dark_surface.fill((0, 0, 0))
             self.screen.blit(dark_surface, (0, 0))
 
             # Font pentru titlu
             title_font = pygame.font.Font(None, 60)  # Font mai mare pentru titlu
             title_text = title_font.render("INFO POINT", True, (255, 69, 0))  # Titlu alb
-            title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 90))  # Plasăm titlul sus
-            self.screen.blit(title_text, title_rect)  # Desenăm titlul pe ecran
+            title_rect = title_text.get_rect(center=(self.screen.get_width() // 2, 90))
+            self.screen.blit(title_text, title_rect)  # Desenam titlul pe ecran
 
             # Font pentru textul informativ
             font = pygame.font.Font('data/fonts/naruto.ttf', 20)
-            lines = self.player.display_message.split('\n')  # Împărțim mesajul în linii
-            y_offset = 200  # Poziționare mai jos pentru textul informativ
+            lines = self.player.display_message.split('\n')  # impartim mesajul in linii
+            y_offset = 200  # pozitionarea mai jos a textului
 
             for line in lines:
                 text = font.render(line, True, (255, 255, 255))  # Text alb
-                text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_offset))  # Poziționare pe verticală
-                self.screen.blit(text, text_rect)  # Desenăm fiecare linie pe ecran
-                y_offset += text.get_height() + 5  # Creștem offset-ul pentru linia următoare
+                text_rect = text.get_rect(center=(self.screen.get_width() // 2, y_offset))
+                self.screen.blit(text, text_rect)
+                y_offset += text.get_height() + 5
 
 
     def run(self):
-        #metoda publica
+        # metoda publica
         pygame.mixer.music.load('data/naruto_music.wav')
         pygame.mixer.music.set_volume(0.5)      
         pygame.mixer.music.play(-1)
@@ -163,13 +163,13 @@ class Game:
         while True:
             self.display.blit(self.assets['background'], (0,0)) #destination.blit(source, position)
 
-            if not len(self.enemies): # asta ar fi daca am omori toti enemies, dar vrem dupa ce atinge ramen ul
+            if not len(self.enemies): # asta ar fi daca am omori toti enemies, dar vrem dupa ce atinge ramen ul sa treaca la urmatorul nivel
                 self.transition += 1
             if self.transition < 0:
                 self.transition += 1
 
             background_scaled = pygame.transform.scale(self.assets['background'], self.display.get_size())
-            self.display.blit(background_scaled, (0, 0))  # Draw the scaled image
+            self.display.blit(background_scaled, (0, 0))  # desenam background-ul
             self.scroll[0] += int((self.player.pos[0] - self.scroll[0] - 160) / 8) # -x este pentru o comensare sa fie la jumatatea ecarnului, iar impartirea este pentru a aduga un smooth scroll
             self.scroll[1] += int((self.player.pos[1] - self.scroll[1] - 120) / 8)
             
@@ -198,13 +198,13 @@ class Game:
                     self.load_level(self.level)
                     self.player.health = 3
 
-            for i in range(self.player.health):#pentru afisarea vietii eroului
+            for i in range(self.player.health): # pentru afisarea vietii eroului
                 self.display.blit(self.assets['inima'], (self.display.get_width() - 20 * (i + 1), 10))
 
             # [(x,y), directie, timer] pentru fiecare proiectil
             for projectile in self.projectiles.copy():
                 projectile[0][0] += projectile[1] #adunam directia la x
-                projectile[2] += 1 # marim timer ul
+                projectile[2] += 1 # marim timer-ul
                 img = self.assets['shuriken']
 
                 # afisam proiectilele
@@ -218,7 +218,7 @@ class Game:
                 elif abs(self.player.dashing) < 60: # daca player-ul e in dash, nu moare
                     if self.player.rect().collidepoint(projectile[0]):
                         for i in range(20):
-                            #exact acelasi lucru ca la dash numai ca am schimbat culoarea particulelor
+                            # exact acelasi lucru ca la dash numai ca am schimbat culoarea particulelor
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 0.5 + 0.5
                             pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
@@ -226,7 +226,7 @@ class Game:
                         self.sfx['hit'].play()
                         self.projectiles.remove(projectile)
                         self.player.health -= 1
-                        #cand il atince un proiectil, ii scadem viata
+                        # cand il atince un proiectil, ii scadem viata
             
 
             for hero_projectile in self.hero_projectiles.copy():
@@ -258,11 +258,10 @@ class Game:
                             self.hero_projectiles.remove(hero_projectile)
                         except ValueError:
                             pass  #aici avem un bug pe care nu l-am putut rezolva, dar nu afecteaza jocul
-                        #se sterge proiectilul inainte ca aceasta functie sa l stearga, de aceea trebuie sa punem un try except
+                        # se sterge proiectilul inainte ca aceasta functie sa-l stearga, de aceea trebuie sa punem un try except
 
 
-
-            # la fiecare frame noi randam particulele pentru dash si le stegem dupa ce si au terminat animatia 
+            # la fiecare frame, noi randam particulele pentru dash si le stegem dupa ce si au terminat animatia 
             for particle in self.particles.copy():
                 kill = particle.update()
                 particle.render(self.display, offset = self.scroll)
@@ -270,7 +269,7 @@ class Game:
                     self.particles.remove(particle)
 
             
-            for event in pygame.event.get(): # ia inputul oricare ar fi el
+            for event in pygame.event.get(): # ia input (oricare ar fi el)
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit() 
@@ -293,7 +292,7 @@ class Game:
                     #     self.load_level(4)
 
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste
+                    if event.key == pygame.K_LEFT: # eveniment generat de ridicarea unei taste
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False        
