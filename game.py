@@ -248,7 +248,12 @@ class Game:
                             speed = random.random() * 0.5 + 0.5
                             pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
                             self.particles.append(Particle(self, 'shoots', enemy.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
-                        self.hero_projectiles.remove(hero_projectile)
+                        try:
+                            self.hero_projectiles.remove(hero_projectile)
+                        except ValueError:
+                            pass  #aici avem un bug pe care nu l-am putut rezolva, dar nu afecteaza jocul
+                        #se sterge proiectilul inainte ca aceasta functie sa l stearga, de aceea trebuie sa punem un try except
+
 
 
             # la fiecare frame noi randam particulele pentru dash si le stegem dupa ce si au terminat animatia 
