@@ -39,8 +39,10 @@ class Enemy(PhysicsEntity):
                 dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
                 if (abs(dis[1]) < 16): # daca distanta dintre player si enemy e mai mica de 16 pixeli, atunci impusca
                     if (self.flip and dis[0] < 0): # verific daca e cu fata
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx - 7, self.rect().centery], -2, 0])
                     if (not self.flip and dis[0] > 0):
+                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 2, 0])
                                                                              #[X,Y], directia/viteza, timer                  
 
@@ -59,6 +61,7 @@ class Enemy(PhysicsEntity):
 
         if abs(self.game.player.dashing) >= 60:
                 if self.rect().colliderect(self.game.player.rect()):
+                    self.game.sfx['hit'].play()
                     self.game.enemies.remove(self)
                     #self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=[0, 0], frame=random.randint(0, 7), life=20))
                     #                 

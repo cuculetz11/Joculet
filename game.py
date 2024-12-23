@@ -60,6 +60,21 @@ class Game:
 
             
         } #dictionar key:String, value: path la img
+
+        self.sfx = {
+            'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
+            'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
+            'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav')
+            # mai pun sunetul pentru info, ramen si moarte
+        }
+
+        self.sfx['ambience'].set_volume(0.2)
+        self.sfx['jump'].set_volume(0.9)
+        self.sfx['dash'].set_volume(0.3)
+        self.sfx['shoot'].set_volume(0.4)
+        self.sfx['hit'].set_volume(0.8)
         
         self.health_hero = 3
         self.player = Player(self, 'player', (50,50), (8, 15))
@@ -129,6 +144,12 @@ class Game:
 
     def run(self):
         #metoda publica
+        pygame.mixer.music.load('data/music.wav')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+        self.sfx['ambience'].play(-1)
+
         while True:
             self.display.blit(self.assets['background'], (0,0)) #destination.blit(source, position)
 
@@ -205,6 +226,7 @@ class Game:
                 for enemy in self.enemies.copy():
                     if enemy.rect().collidepoint(hero_projectile[0]):
                         enemy.take_damage()
+                        self.sfx['hit'].play()
                         self.hero_projectiles.remove(hero_projectile)
                         for i in range(20):
                             angle = random.random() * math.pi * 2

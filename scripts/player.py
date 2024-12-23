@@ -94,13 +94,12 @@ class Player(PhysicsEntity):
 
     def check_info(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
-            print("info")
             self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
             if(self.game.level == 0):
                 self.display_message = (
                     "Naruto is searching for Sasuke to bring him back to the village\n"
                     "He has lost his powers and needs to regain them.\n"
-                    "Eat Ramen to unlock a superpower: double jump "
+                    "Eat Ramen to unlock a superpower: double jump \n"
                     "and progress to the next level."
                 )
             if(self.game.level == 1):
@@ -123,11 +122,13 @@ class Player(PhysicsEntity):
 
     def jump(self):
         if self.jumps > 0:
+            self.game.sfx['jump'].play()
             self.velocity[1] = -3
             self.jumps -= 1
             self.air_time = 5
 
     def dash(self):
+        self.game.sfx['dash'].play()
         if not self.dashing:
             if self.flip:
                 self.dashing = -70
