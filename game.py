@@ -57,7 +57,6 @@ class Game:
             'run_animation': Animation(load_images('entities/player/run'), img_dur=5),
             'jump_animation': Animation(load_images('entities/player/jump'))
 
-
             
         } #dictionar key:String, value: path la img
 
@@ -66,15 +65,21 @@ class Game:
             'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
             'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
-            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav')
+            'ramen': pygame.mixer.Sound('data/sfx/ramen.wav'),
+            'info': pygame.mixer.Sound('data/sfx/info.wav'),
+            'death': pygame.mixer.Sound('data/sfx/death.wav'),
+            'new_level': pygame.mixer.Sound('data/sfx/new_level.wav')
             # mai pun sunetul pentru info, ramen si moarte baravo da
         }
 
-        self.sfx['ambience'].set_volume(0.2)
-        self.sfx['jump'].set_volume(0.9)
+        self.sfx['jump'].set_volume(0.6)
         self.sfx['dash'].set_volume(0.3)
         self.sfx['shoot'].set_volume(0.4)
         self.sfx['hit'].set_volume(0.8)
+        self.sfx['ramen'].set_volume(0.7)
+        self.sfx['info'].set_volume(0.7)
+        self.sfx['death'].set_volume(0.2)
+        self.sfx['new_level'].set_volume(0.6)
         
         self.health_hero = 3
         self.player = Player(self, 'player', (50,50), (8, 15))
@@ -146,11 +151,9 @@ class Game:
 
     def run(self):
         #metoda publica
-        pygame.mixer.music.load('data/music.wav')
+        pygame.mixer.music.load('data/music2.wav')
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-
-        self.sfx['ambience'].play(-1)
 
         while True:
             self.display.blit(self.assets['background'], (0,0)) #destination.blit(source, position)
@@ -185,6 +188,7 @@ class Game:
             else:
                 a = a - 1
                 if a == 0:
+                    self.sfx['death'].play()
                     self.load_level(self.level)
                     self.player.health = 3
 

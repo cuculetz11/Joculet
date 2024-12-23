@@ -67,6 +67,7 @@ class Player(PhysicsEntity):
 
     def check_fall(self):
         if self.pos[1] > 350:
+            self.game.sfx['death'].play()
             self.health = 0
             self.game.load_level(self.game.level)
             self.game.player.health = 3
@@ -82,12 +83,16 @@ class Player(PhysicsEntity):
 
     def check_ramen(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.ramen[0]) * 16, int(self.game.ramen[1]) * 16, 10, 10)):
+            self.game.sfx['ramen'].play()
             if self.game.level == 0:
+                self.game.sfx['new_level'].play()
                 self.can_double_jump = True  # Unlock double jump
                 self.jumps = 2  # Grant double jump immediately
             if self.game.level == 1:
+                self.game.sfx['new_level'].play()
                 self.can_dash = True
             if self.game.level == 2:
+                self.game.sfx['new_level'].play()
                 self.can_projectile = True    
             # Load the next level
             self.game.level += 1
@@ -95,6 +100,7 @@ class Player(PhysicsEntity):
 
     def check_info(self):
         if self.rect().colliderect(pygame.Rect(int(self.game.info[0]) * 16, int(self.game.info[1]) * 16, 10, 10)):
+            self.game.sfx['info'].play()
             self.dark_overlay = True  # va face ecranul sa se intunece cand ating info
             if(self.game.level == 0):
                 self.display_message = (
@@ -105,12 +111,12 @@ class Player(PhysicsEntity):
                 )
             if(self.game.level == 1):
                 self.display_message = (
-                    "Eat Ramen to unlock a superpower: dash( press x to use it)\n"
+                    "Eat Ramen to unlock a superpower: dash (press x to use it)\n"
                     "With dash you can kill enemies and progress to the next level."
                 )
             if(self.game.level == 2):
                 self.display_message = (
-                    "Eat Ramen to unlock a superpower: rassengan( press z to use it)\n"
+                    "Eat Ramen to unlock a superpower: rassengan (press z to use it)\n"
                     "With rassengan you can kill enemies and progress to the next level."        
                 )
             if(self.game.level == 3):
