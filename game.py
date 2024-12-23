@@ -235,9 +235,15 @@ class Game:
                 img = self.assets['rassengan']
                 self.display.blit(img, (hero_projectile[0][0] - img.get_width() / 2 - self.scroll[0], hero_projectile[0][1] - img.get_height() / 2 - self.scroll[1]))
                 if self.tilemap.solid_check(hero_projectile[0]):
-                    self.hero_projectiles.remove(hero_projectile)
+                    try:
+                        self.hero_projectiles.remove(hero_projectile)
+                    except ValueError:
+                        pass   
                 elif hero_projectile[2] > 360:
-                    self.hero_projectiles.remove(hero_projectile)
+                    try:
+                        self.hero_projectiles.remove(hero_projectile)
+                    except ValueError:
+                        pass    
                 for enemy in self.enemies.copy():
                     if enemy.rect().collidepoint(hero_projectile[0]):
                         enemy.take_damage()
