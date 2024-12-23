@@ -73,6 +73,7 @@ class Player(PhysicsEntity):
 
     def attack(self):
         if self.attack_cooldown == 0:
+            self.game.sfx['shoot'].play()
             if self.flip:
                 self.game.hero_projectiles.append([[self.rect().centerx - 7, self.rect().centery], -3, 0])
             else:
@@ -120,6 +121,11 @@ class Player(PhysicsEntity):
                 self.dark_overlay = False  # dezactivez overlay-ul
                 self.display_message = ""
 
+    # def check_sasuke(self):
+    #     print(self.game.sasuke[0], self.game.sasuke[1])
+    #     # if self.rect().colliderect(pygame.Rect(int(self.game.sasuke[0]) * 16, int(self.game.sasuke[1]) * 16, 10, 10)):
+    #     #     self.game.win = True
+    #     #     print("You saved Sasuke! You win!")
     def jump(self):
         if self.jumps > 0:
             self.game.sfx['jump'].play()
@@ -128,8 +134,9 @@ class Player(PhysicsEntity):
             self.air_time = 5
 
     def dash(self):
-        self.game.sfx['dash'].play()
+        
         if not self.dashing:
+            self.game.sfx['dash'].play()
             if self.flip:
                 self.dashing = -70
             else:

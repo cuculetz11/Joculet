@@ -53,6 +53,7 @@ class PotatoEnemy(PhysicsEntity):
                     
         else:
             if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
                 self.game.player.health -= 1
                 if self.game.player.flip:
                     self.game.player.pos[0] = self.game.player.pos[0] + 30

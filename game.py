@@ -67,7 +67,7 @@ class Game:
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
             'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
             'ambience': pygame.mixer.Sound('data/sfx/ambience.wav')
-            # mai pun sunetul pentru info, ramen si moarte
+            # mai pun sunetul pentru info, ramen si moarte baravo da
         }
 
         self.sfx['ambience'].set_volume(0.2)
@@ -78,10 +78,11 @@ class Game:
         
         self.health_hero = 3
         self.player = Player(self, 'player', (50,50), (8, 15))
-        
+        self.win = False
         self.tilemap = Tilemap(self,tile_size = 16)
         self.ramen = []
         self.info = []
+        self.sasuke = []
 
         self.level = 0
         self.load_level(self.level)
@@ -93,7 +94,7 @@ class Game:
         self.tilemap.load('data/levels/' + str(map_id) + '.json')
         self.player.health = 3
         self.enemies = []
-        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3)]):
+        for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1), ('spawners', 2), ('spawners', 3), ('spawners', 4)]):
             if spawner['variant'] == 0:
                 self.player.pos = spawner['pos']
             elif spawner['variant'] == 1:
@@ -102,7 +103,8 @@ class Game:
                 self.enemies.append(PotatoEnemy(self, spawner['pos'], (8, 15)))
             elif spawner['variant'] == 3:
                 self.enemies.append(SmartEnemy(self, spawner['pos'], (8, 15)))    
-    
+            elif spawner['variant'] == 4:
+                self.sasuke = spawner['pos'] # trebuie facuta o clasa cu sasuke sau cv sa l tin aminta si sa i randeze imaginea pt ca extract il sterge
 
         self.projectiles = []
         self.hero_projectiles = []
@@ -169,6 +171,8 @@ class Game:
             self.player.check_fall()
             self.player.check_ramen()
             self.player.check_info()
+            # if(self.level == 4):
+            #     self.player.check_sasuke()
             # randam enemies
             for enemy in self.enemies.copy():
                 enemy.update(self.tilemap, (0, 0))
@@ -209,6 +213,7 @@ class Game:
                             speed = random.random() * 0.5 + 0.5
                             pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
                             self.particles.append(Particle(self, 'shoots', self.player.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
+                        self.sfx['hit'].play()
                         self.projectiles.remove(projectile)
                         self.player.health -= 1
                         #cand il atince un proiectil, ii scadem viata
@@ -227,12 +232,13 @@ class Game:
                     if enemy.rect().collidepoint(hero_projectile[0]):
                         enemy.take_damage()
                         self.sfx['hit'].play()
-                        self.hero_projectiles.remove(hero_projectile)
+                        
                         for i in range(20):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 0.5 + 0.5
                             pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
                             self.particles.append(Particle(self, 'shoots', enemy.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
+                        self.hero_projectiles.remove(hero_projectile)
 
 
             # la fiecare frame noi randam particulele pentru dash si le stegem dupa ce si au terminat animatia 

@@ -22,6 +22,7 @@ class SmartEnemy(PhysicsEntity):
         self.speed = 2  # Viteza de deplasare
         self.jump_power = -3  # Puterea săriturii
         self.wait_time = 0  # Timer pentru așteptare în caz de obstacol
+        self.walking = 0
 
     def take_damage(self):
         self.health -= 1
@@ -30,36 +31,46 @@ class SmartEnemy(PhysicsEntity):
         if self.health <= 0:
             self.game.enemies.remove(self)
             return
+
         player_dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
-        player_distance = (player_dis[0] ** 2 + player_dis[1] ** 2) ** 0.5
+        player_distance = math.hypot(player_dis[0], player_dis[1])
 
         # Urmărirea jucătorului
         if player_distance < self.chase_distance and self.wait_time == 0:
             if abs(player_dis[0]) > 10:  # Evităm oscilațiile la distanțe mici
                 movement = ((-self.speed if player_dis[0] < 0 else self.speed), movement[1])
 
-            # Detectarea unui obstacol specific în față
-            check_x = self.rect().centerx + (-10 if self.flip else 10)  # Punctul din fața inamicului
-            check_y_base = self.pos[1] + self.size[1]  # Punctul de la baza inamicului
-            check_y_top = check_y_base - 16  # Punctul de deasupra bazei (pentru al doilea bloc)
+        # Detectarea obstacolelor în fața inamicului
+        if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
+            if self.collisions['right'] or self.collisions['left']:
+                self.flip = not self.flip
+            else:
+                movement = (-0.5 if self.flip else 0.5, movement[1])
+        else:
+            self.flip = not self.flip
+            self.walking = max(0, self.walking - 1)
 
-            # Verificăm dacă este un obstacol în față
-            obstacle_base_tile = tilemap.get_tile_at((check_x, check_y_base))
-            obstacle_top_tile = tilemap.get_tile_at((check_x, check_y_top))
-
-            # Dacă există un obstacol, inamicul se oprește și așteaptă
-            if obstacle_base_tile in ['stone', 'grass'] or obstacle_top_tile in ['stone', 'grass']:
-                self.wait_time = 60  # Așteaptă 60 de frame-uri înainte de a încerca din nou
-                movement = (0, movement[1])  # Oprește mișcarea pe orizontală
+        # Salt continuu dacă este pe sol și cooldown-ul permite
+        if self.collisions['down'] and self.jump_cooldown == 0:
+            self.game.sfx['jump'].play()
+            self.velocity[1] = self.jump_power
+            self.jump_cooldown = 60
+        else:
+            self.velocity[1] = 0   
 
         # Reducem cooldown-ul pentru așteptare
         if self.wait_time > 0:
             self.wait_time -= 1
 
+        # Reducem cooldown-ul pentru sărituri
+        if self.jump_cooldown > 0:
+            self.jump_cooldown -= 1
+
         # Dacă inamicul nu are cooldown de așteptare, încearcă să tragă
         if player_distance < self.shooting_distance and self.wait_time == 0:
             if self.attack_cooldown == 0:
                 bullet_speed = 4 if player_dis[0] > 0 else -4
+                self.game.sfx['shoot'].play()
                 self.game.projectiles.append([
                     [self.rect().centerx, self.rect().centery],  # Poziția glonțului
                     bullet_speed,  # Direcția și viteza
@@ -78,7 +89,7 @@ class SmartEnemy(PhysicsEntity):
         if movement[0] != 0:  # Dacă se mișcă
             self.set_action('smart_enemy/run')
         elif self.wait_time > 0:  # Dacă așteaptă
-            self.set_action('smart_enemy/idle')  # Poți seta o animație de idle, chiar dacă așteaptă
+            self.set_action('smart_enemy/idle')  # Poți seta o animație de idle
         elif not self.collisions['down']:  # Dacă sare
             self.set_action('smart_enemy/jump')
         else:  # Dacă nu se mișcă și nu sare
@@ -87,17 +98,15 @@ class SmartEnemy(PhysicsEntity):
         # Eliminarea la coliziunea cu jucătorul în dash
         if abs(self.game.player.dashing) >= 60:
             if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
                 self.health -= 2
         else:
             if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
                 self.game.player.health -= 1
-                if self.game.player.flip:
-                    self.game.player.pos[0] = self.game.player.pos[0] + 30
-                else:
-                    self.game.player.pos[0] = self.game.player.pos[0] - 30
+                self.game.player.pos[0] += 30 if self.game.player.flip else -30
 
                 for i in range(20):
-                    # Exact același lucru ca la dash, doar că schimbăm culoarea particulelor
                     angle = random.random() * math.pi * 2
                     speed = random.random() * 0.5 + 0.5
                     pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
@@ -105,12 +114,3 @@ class SmartEnemy(PhysicsEntity):
 
     def render(self, surf, offset=(0, 0)):
         super().render(surf, offset=offset)
-
-        # Desenează o săgeată indicând direcția de urmărire (pentru debugging)
-        pygame.draw.line(
-            surf, (255, 0, 0),
-            (self.rect().centerx - offset[0], self.rect().centery - offset[1]),
-            (self.game.player.rect().centerx - offset[0], self.game.player.rect().centery - offset[1]),
-            1
-        )
-
