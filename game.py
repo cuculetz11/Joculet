@@ -121,7 +121,7 @@ class Game:
                 self.ramen = tile['pos']
             if tile['type'] == 'decor' and tile['variant'] == 4:
                 self.info = tile['pos']
-        if(self.level == 4):
+        if(self.level == 3):
             for tile in self.tilemap.offgrid_tiles:
                 if tile['type'] == 'decor' and tile['variant'] == 6:
                     self.sasuke = tile['pos']
@@ -180,7 +180,7 @@ class Game:
             self.player.check_fall()
             self.player.check_ramen()
             self.player.check_info()
-            if(self.level == 4):
+            if(self.level == 3):
                 self.player.check_sasuke()
             # randam enemies
             for enemy in self.enemies.copy():
@@ -274,12 +274,12 @@ class Game:
                         self.player.dash()
                     if event.key == pygame.K_s and self.player.can_projectile:
                         self.player.attack()
-                    if event.key == pygame.K_t:  #mapa pentru testare
-                        self.player.can_dash = True
-                        self.player.can_projectile = True
-                        self.player.can_double_jump = True
-                        self.level = 4
-                        self.load_level(4)
+                    # if event.key == pygame.K_t:  #mapa pentru testare
+                    #     self.player.can_dash = True
+                    #     self.player.can_projectile = True
+                    #     self.player.can_double_jump = True
+                    #     self.level = 4
+                    #     self.load_level(4)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:#evenimet generat de ridicarea unei taste

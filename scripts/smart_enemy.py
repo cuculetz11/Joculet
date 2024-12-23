@@ -71,7 +71,7 @@ class SmartEnemy(PhysicsEntity):
         # Dacă inamicul nu are cooldown de așteptare, încearcă să tragă
         if player_distance < self.shooting_distance and self.wait_time == 0:
             if self.attack_cooldown == 0:
-                bullet_speed = 2 if player_dis[0] > 0 else -2
+                bullet_speed = 1.5 if player_dis[0] > 0 else -1.5
                 self.game.sfx['shoot'].play()
                 self.game.projectiles.append([
                     [self.rect().centerx, self.rect().centery],  # Poziția glonțului
