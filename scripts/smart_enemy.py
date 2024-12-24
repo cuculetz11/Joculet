@@ -42,7 +42,7 @@ class SmartEnemy(PhysicsEntity):
             if abs(player_dis[0]) > 10:  # Evitam obstacolele la distanta mica
                 movement = ((-self.speed if player_dis[0] < 0 else self.speed), movement[1])
 
-        # Detectarea obstacolelor în fata inamicului
+        # Detectarea obstacolelor in fata inamicului
         if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
             if self.collisions['right'] or self.collisions['left']:
                 self.flip = not self.flip
@@ -52,7 +52,7 @@ class SmartEnemy(PhysicsEntity):
             self.flip = not self.flip
             self.walking = max(0, self.walking - 1)
 
-        # Salt continuu dacă este pe sol si cooldown-ul permite
+        # Salt continuu daca este pe sol si cooldown-ul permite
         if self.collisions['down'] and self.jump_cooldown == 0:
             self.game.sfx['jump'].play()
             self.velocity[1] = self.jump_power
@@ -74,11 +74,11 @@ class SmartEnemy(PhysicsEntity):
                 bullet_speed = 1.5 if player_dis[0] > 0 else -1.5
                 self.game.sfx['shoot'].play()
                 self.game.projectiles.append([
-                    [self.rect().centerx, self.rect().centery],  # Pozitia glonțului
+                    [self.rect().centerx, self.rect().centery],  # Pozitia glontului
                     bullet_speed,  # Directia si viteza
                     0  # Timer
                 ])
-                self.attack_cooldown = 50  # Cooldown pentru următorul atac
+                self.attack_cooldown = 50  # Cooldown pentru urmatorul atac
 
         # Reducem cooldown-ul pentru atacuri
         if self.attack_cooldown > 0:
@@ -87,7 +87,7 @@ class SmartEnemy(PhysicsEntity):
         # Actualizare pozitie
         super().update(tilemap, movement=movement)
 
-        # Setam animațiile
+        # Setam animatiile
         if movement[0] != 0:  # Daca se misca
             self.set_action('smart_enemy/run')
         elif self.wait_time > 0:  # Daca asteapta
