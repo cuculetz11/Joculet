@@ -179,8 +179,20 @@ pentru a extinde si imbogati experienta jocului.
 Am avut un interes extraordinar in dezvoltarea acestui joc, 
 motiv pentru care am depus o mare atentie in detaliile implementarii 
 si am investit mult timp si energie pentru a-l aduce la forma dorita. 
+
+Ne-am blocat la cateva bug-uri la finalul proiectului, care au necesitat 
+timp pentru a fi depistate si corectate. Am intampinat, de asemenea, 
+probleme cu afisarea textului pe ecran si cu intarzierile la redarea sunetului,
+impreuna cu alte mici dificultati tehnice care au necesitat solutii improvizate 
+sau ajustari ale codului pentru a functiona corect.
+
 Acest proiect ne-a inspirat si ne-a permis sa ne testam abilitatile 
 de programare si creativitatea, iar satisfactia de a-l finaliza ne-a 
 dat o motivatie suplimentara pe parcursul intregului proces.
+
+* Pentru a rula jocul, utilizatorii trebuie sa deschida terminalul
+si sa execute comanda python3 game.py (sau cu executabilul)
+
+* link github proiect: https://github.com/cuculetz11/Joculet
 
 

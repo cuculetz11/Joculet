@@ -144,7 +144,7 @@ class Player(PhysicsEntity):
             # Afiseaza mesajul de castig
             font = pygame.font.Font('data/fonts/naruto.ttf', 45)  # Font personalizat
             text = font.render("You saved Sasuke! You won!", True, (255, 165, 0))  # Portocaliu Naruto
-            # Blochează interacțiunea cu jocul si afiseaza mesajul
+
             running = True
             while running:
                 for event in pygame.event.get():
