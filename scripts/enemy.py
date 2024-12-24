@@ -62,16 +62,7 @@ class Enemy(PhysicsEntity):
         if abs(self.game.player.dashing) >= 60:
                 if self.rect().colliderect(self.game.player.rect()):
                     self.game.sfx['hit'].play()
-                    self.game.enemies.remove(self)
-                    #self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=[0, 0], frame=random.randint(0, 7), life=20))
-                    #                 
+                    self.game.enemies.remove(self)           
    
     def render(self, surf, offset=(0, 0)):
         super().render(surf, offset=offset)
-
-        # pune shuriken ul in mana
-        # if self.flip:
-        #     surf.blit(pygame.transform.flip(self.game.assets['gun'], True, False), (self.rect().centerx - 3 - self.game.assets['gun'].get_width() - offset[0], self.rect().centery - offset[1] - 2)) #roteste toata imaginea
-        # else:
-        #     surf.blit(self.game.assets['gun'], (self.rect().centerx + 3 - offset[0], self.rect().centery - offset[1] - 2))
-
