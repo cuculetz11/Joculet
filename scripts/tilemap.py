@@ -16,7 +16,7 @@ AUTOTILE_MAP = {
 
 NEIGHBOR_OFFSET = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 
-PHYSICS_TILES = {'grass', 'stone'} #acesta e un set ce contine tipurile de tileuri ce vor avea coliiziuni O(1)
+PHYSICS_TILES = {'grass', 'stone'} # acesta e un set ce contine tipurile de tileuri ce vor avea coliiziuni O(1)
 
 AUTOTILE_TYPES = {'grass', 'stone'}
 
@@ -27,7 +27,7 @@ class Tilemap:
         self.game = game
         self.tile_size = tile_size
         self.tilemap = {} #dictionar in vare salvam pozitia in acest stil "1;10" si ce avem la aceea pozitie e un tile ce are campurile 'type','variant', 'pos' 
-        self.offgrid_tiles = [] #lista elemente ce nu respecta gridul, adica nu sunt pe o placa de tiles le pot pune cum vreau eu(suprapuse sau cum vreau)
+        self.offgrid_tiles = [] #lista cu elemente ce nu respecta gridul, adica nu sunt pe o placa de tiles le pot pune cum vreau eu (suprapuse sau cum vreau)
 
     def extract(self, id_pairs, keep=False):
         matches = []
@@ -60,10 +60,10 @@ class Tilemap:
         Args: pozitia pentru care vrem sa verificam daca exista tileuri in jur
         Returneaza: o lista de tileuri in jurul pozitiei date
         """
-        tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size)) #folositd int (x//y) obtinem fix partea intreaga a numarului x/y
+        tile_loc = (int(pos[0] // self.tile_size), int(pos[1] // self.tile_size)) # folosind int (x//y) obtinem fix partea intreaga a numarului x/y
         tiles = []
         for offset in NEIGHBOR_OFFSET:
-            check_loc = str(tile_loc[0] + offset[0]) + ';' + str(tile_loc[1] + offset[1]) #practic obtinem 9 pozitii
+            check_loc = str(tile_loc[0] + offset[0]) + ';' + str(tile_loc[1] + offset[1]) # practic obtinem 9 pozitii
             if check_loc in self.tilemap:
                 tiles.append(self.tilemap[check_loc])
         return tiles
@@ -106,14 +106,6 @@ class Tilemap:
             neighbors = tuple(sorted(neighbors))
             if (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP):
                 tile['variant'] = AUTOTILE_MAP[neighbors]
-    def get_tile_at(self, pos):
-        """
-        Returnează tipul tile-ului la o poziție dată.
-        """
-        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
-        if tile_loc in self.tilemap:
-            return self.tilemap[tile_loc]['type']
-        return None
 
     def physics_around(self,pos):
         recs = []
@@ -121,11 +113,19 @@ class Tilemap:
             if tile['type'] in PHYSICS_TILES:
                 recs.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size)) #creem un dreptunghi pentru a realiza coliiziuni
         return recs
-    
+    def get_tile_at(self, pos):
+        """
+        retunreaza tipul tile-ului de la o anumita pozitie
+        """
+        tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
+        if tile_loc in self.tilemap:
+            return self.tilemap[tile_loc]['type']
+        return None
+
     def render(self,surf, offset = (0,0)):
         
         for tile in self.offgrid_tiles:
-            surf.blit(self.game.assets[tile['type']][tile['variant']] , (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1])) #acelasi lucrul ca mai jos doar ca aici nu tinem connt de dimensiunea unu tile
+            surf.blit(self.game.assets[tile['type']][tile['variant']] , (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1])) #acelasi lucru ca mai jos doar ca aici nu tinem connt de dimensiunea unu tile
             
         # cauta toate tile-urile din dictionar si le randeaza pe ecran, toate tileurile fiind incarcate in game.assets
         for loc in self.tilemap:

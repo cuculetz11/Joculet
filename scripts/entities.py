@@ -66,7 +66,7 @@ class PhysicsEntity:
                 self.pos[1] = entity_rect.y
 
         if movement[0] < 0:
-            self.flip = True #daca miscarea pe axa x este negativa, atunci playerul se va intoarce
+            self.flip = True # daca miscarea pe axa x este negativa, atunci playerul se va intoarce
         if movement[0] > 0:
             self.flip = False
 

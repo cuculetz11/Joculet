@@ -1,5 +1,7 @@
 import pygame
 import random
+import math
+from scripts.particle import Particle
 from scripts.entities import PhysicsEntity
 
 class SmartEnemy(PhysicsEntity):
@@ -12,83 +14,105 @@ class SmartEnemy(PhysicsEntity):
     """
     def __init__(self, game, pos, size):
         super().__init__(game, 'smart_enemy', pos, size)
-
+        self.health = 10
         self.attack_cooldown = 0
         self.jump_cooldown = 0
-        self.chase_distance = 200  # Distanța maximă la care urmărește jucătorul
-        self.shooting_distance = 150  # Distanța maximă la care poate trage în jucător
-        self.speed = 2 # Viteza de deplasare
-        self.jump_power = -3  # Puterea săriturii
+        self.chase_distance = 200  # Distanta maxima la care poate urmari jucatorul
+        self.shooting_distance = 150  # Distanta maxima la care poate trage in jucător
+        self.speed = 2  # Viteza de deplasare
+        self.jump_power = -3  # Puterea sariturii
+        self.wait_time = 0  # Timer pentru asteptare in caz de obstacol
+        self.walking = 0
+
+    def take_damage(self):
+        self.health -= 1
 
     def update(self, tilemap, movement=(0, 0)):
-        player_dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
-        player_distance = (player_dis[0] ** 2 + player_dis[1] ** 2) ** 0.5
+        if self.health <= 0:
+            self.game.sfx['boss_kill'].play()
+            self.game.orochimaru = False
+            self.game.enemies.remove(self)
+            return
 
-        # Urmărirea jucătorului
-        if player_distance < self.chase_distance:
-            if abs(player_dis[0]) > 10:  # Evităm oscilațiile la distanțe mici
+        player_dis = (self.game.player.pos[0] - self.pos[0], self.game.player.pos[1] - self.pos[1])
+        player_distance = math.hypot(player_dis[0], player_dis[1])
+
+        # urmarirea jucătorului
+        if player_distance < self.chase_distance and self.wait_time == 0:
+            if abs(player_dis[0]) > 10:  # Evitam obstacolele la distanta mica
                 movement = ((-self.speed if player_dis[0] < 0 else self.speed), movement[1])
 
-            # Detectarea unui obstacol specific în față
-           # Detectarea obstacolelor în fața inamicului (blocuri 1 sau 2)
-        check_x = self.rect().centerx + (-10 if self.flip else 10)  # Punctul din fața inamicului
-        check_y_base = self.pos[1] + self.size[1]  # Punctul de la baza inamicului
-        check_y_top = check_y_base - 16  # Punctul de deasupra bazei (pentru al doilea bloc)
+        # Detectarea obstacolelor in fata inamicului
+        if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
+            if self.collisions['right'] or self.collisions['left']:
+                self.flip = not self.flip
+            else:
+                movement = (-0.5 if self.flip else 0.5, movement[1])
+        else:
+            self.flip = not self.flip
+            self.walking = max(0, self.walking - 1)
 
-        # Verificăm dacă este un obstacol în față
-        obstacle_base_tile = tilemap.get_tile_at((check_x, check_y_base))
-        obstacle_top_tile = tilemap.get_tile_at((check_x, check_y_top))
-
-        # Condiția de săritură: există un obstacol jos sau obstacole pe două nivele
-        if (obstacle_base_tile in ['stone', 'grass'] or obstacle_top_tile in ['stone', 'grass']) \
-                and self.collisions['down'] and self.jump_cooldown == 0:
+        # Salt continuu daca este pe sol si cooldown-ul permite
+        if self.collisions['down'] and self.jump_cooldown == 0:
+            self.game.sfx['jump'].play()
             self.velocity[1] = self.jump_power
-            self.jump_cooldown = 30  # Resetăm cooldown-ul pentru sărituri
+            self.jump_cooldown = 60
+        else:
+            self.velocity[1] = 0   
 
+        # Reducem cooldown-ul pentru asteptare
+        if self.wait_time > 0:
+            self.wait_time -= 1
 
-        # Reducem cooldown-ul pentru sărituri
+        # Reducem cooldown-ul pentru sarituri
         if self.jump_cooldown > 0:
             self.jump_cooldown -= 1
 
-        # Tragerea către jucător
-        if player_distance < self.shooting_distance:
+        # Daca inamicul nu are cooldown de asteptare, incearca sa traga
+        if player_distance < self.shooting_distance and self.wait_time == 0:
             if self.attack_cooldown == 0:
-                bullet_speed = 4 if player_dis[0] > 0 else -4
+                bullet_speed = 1.5 if player_dis[0] > 0 else -1.5
+                self.game.sfx['shoot'].play()
                 self.game.projectiles.append([
-                    [self.rect().centerx, self.rect().centery],  # Poziția glonțului
-                    bullet_speed,  # Direcția și viteza
+                    [self.rect().centerx, self.rect().centery],  # Pozitia glontului
+                    bullet_speed,  # Directia si viteza
                     0  # Timer
                 ])
-                self.attack_cooldown = 20  # Cooldown pentru următorul atac
+                self.attack_cooldown = 50  # Cooldown pentru urmatorul atac
 
         # Reducem cooldown-ul pentru atacuri
         if self.attack_cooldown > 0:
             self.attack_cooldown -= 1
 
-        # Actualizare poziție
+        # Actualizare pozitie
         super().update(tilemap, movement=movement)
 
-        # Setăm animațiile
-        if movement[0] != 0:
+        # Setam animatiile
+        if movement[0] != 0:  # Daca se misca
             self.set_action('smart_enemy/run')
-        elif not self.collisions['down']:
+        elif self.wait_time > 0:  # Daca asteapta
+            self.set_action('smart_enemy/idle') 
+        elif not self.collisions['down']:  # Daca sare
             self.set_action('smart_enemy/jump')
-        else:
+        else:  # Daca sta pe loc
             self.set_action('smart_enemy/idle')
 
-        # Eliminarea la coliziunea cu jucătorul în dash
+        # eliminarea la coliziune cu jucatorul in dash
         if abs(self.game.player.dashing) >= 60:
             if self.rect().colliderect(self.game.player.rect()):
-                self.game.enemies.remove(self)
+                self.game.sfx['hit'].play()
+                self.health -= 2
+        else:
+            if self.rect().colliderect(self.game.player.rect()):
+                self.game.sfx['hit'].play()
+                self.game.player.health -= 1
+                self.game.player.pos[0] += 30 if self.game.player.flip else -30
 
-def render(self, surf, offset=(0, 0)):
-    super().render(surf, offset=offset)
+                for i in range(20):
+                    angle = random.random() * math.pi * 2
+                    speed = random.random() * 0.5 + 0.5
+                    pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
+                    self.game.particles.append(Particle(self.game, 'shoots', self.game.player.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
 
-    # Desenează o săgeată indicând direcția de urmărire (pentru debugging)
-    pygame.draw.line(
-        surf, (255, 0, 0),
-        (self.rect().centerx - offset[0], self.rect().centery - offset[1]),
-        (self.game.player.rect().centerx - offset[0], self.game.player.rect().centery - offset[1]),
-        1
-    )
-
+    def render(self, surf, offset=(0, 0)):
+        super().render(surf, offset=offset)
